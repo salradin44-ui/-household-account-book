@@ -95,7 +95,7 @@
           <h3 class="font-bold text-white flex items-center gap-1.5">
             <span class="text-teal-400">◐</span> 자산 포트폴리오
           </h3>
-          <span class="text-slate-400 text-[11px]" id="dash-asset-count">4개 항목 보유</span>
+          <span class="text-slate-400 text-[11px]" id="dash-asset-count">0개 항목 보유</span>
         </div>
         <div class="relative h-44 flex justify-center items-center pt-1">
           <canvas id="assetDoughnutChart"></canvas>
@@ -132,7 +132,7 @@
       <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
         <div class="text-xs text-emerald-300 font-semibold">⚡ 결제 문자/알림톡 복사 붙여넣기</div>
         <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 복사해서 여기에 붙여넣으세요" class="w-full text-xs p-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-400"></textarea>
-        <button onclick="parseSMS()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-xs transition">문자 파싱 및 자동 입력</button>
+        <button type="button" onclick="parseSMS()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-xs transition">문자 파싱 및 자동 입력</button>
       </div>
 
       <form id="expense-form" class="space-y-3" onsubmit="addTransaction(event)">
@@ -225,7 +225,7 @@
         <label class="text-xs font-bold opacity-80">가계부 이름 변경</label>
         <div class="flex gap-2">
           <input type="text" id="setting-title-input" placeholder="이사가자 시안아!" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-          <button onclick="updateAppTitle()" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">변경</button>
+          <button type="button" onclick="updateAppTitle()" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">변경</button>
         </div>
       </div>
 
@@ -250,14 +250,14 @@
             <input type="color" id="text-color-picker" value="#F8FAFC" onchange="changeThemeColor('textColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
           </div>
         </div>
-        <button onclick="resetThemeColors()" class="w-full py-1 bg-slate-800 text-[11px] rounded border border-slate-700 text-slate-300">기본 테마 복원</button>
+        <button type="button" onclick="resetThemeColors()" class="w-full py-1 bg-slate-800 text-[11px] rounded border border-slate-700 text-slate-300">기본 테마 복원</button>
       </div>
 
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">카테고리 항목 관리</h3>
         <div class="flex gap-2">
           <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-          <button onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
+          <button type="button" onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
       </div>
@@ -265,8 +265,8 @@
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">데이터 백업 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="exportData()" class="py-1.5 bg-slate-800 text-xs rounded border border-slate-700">백업 다운로드</button>
-          <button onclick="resetData()" class="py-1.5 bg-rose-950 text-rose-400 text-xs rounded border border-rose-900">전체 초기화</button>
+          <button type="button" onclick="exportData()" class="py-1.5 bg-slate-800 text-xs rounded border border-slate-700">백업 다운로드</button>
+          <button type="button" onclick="resetData()" class="py-1.5 bg-rose-950 text-rose-400 text-xs rounded border border-rose-900">전체 초기화</button>
         </div>
       </div>
     </section>
@@ -300,9 +300,7 @@
 
   <!-- JS 및 파이어베이스 연동 로직 -->
   <script>
-    // ========================================================
-    // 🔥 [이곳에 본인의 FIREBASE 설정 키를 입력하세요] 🔥
-    // ========================================================
+    // 복사해주신 개인 Firebase 키 완벽 탑재
     const firebaseConfig = {
       apiKey: "AIzaSyCVrDiogWtDE6oIj798HcbIoQWdZsNrudM",
       authDomain: "jaeho-household-account-book.firebaseapp.com",
@@ -313,9 +311,16 @@
       appId: "1:1078732817028:web:a2604f0c752f06f75938d1"
     };
 
-    // Firebase 초기화
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    let isFirebaseActive = false;
+    let db = null;
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      isFirebaseActive = true;
+    } catch (e) {
+      console.error("Firebase Init Error:", e);
+    }
 
     let appData = {
       title: "이사가자 시안아!",
@@ -340,27 +345,53 @@
     let barChart = null;
 
     window.onload = function() {
-      // 파이어베이스 실시간 수신 리스너 등록
-      db.ref('isagaja_budget_data').on('value', (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          appData = val;
-          applyThemeAndTitle();
-          renderDropdowns();
-          renderDashboard();
-          updateCharts();
-        }
-      });
+      loadLocalStorage();
+
+      if (isFirebaseActive && db) {
+        db.ref('isagaja_budget_data').on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            appData = val;
+            saveLocalStorageOnly();
+            refreshAllUI();
+          }
+        }, (error) => {
+          console.error("Firebase Read Error:", error);
+        });
+      }
 
       document.getElementById('in-date').value = new Date().toISOString().substring(0, 10);
-      renderDropdowns();
-      renderDashboard();
+      refreshAllUI();
       initCharts();
     };
 
-    // 파이어베이스 DB 실시간 저장
+    function refreshAllUI() {
+      applyThemeAndTitle();
+      renderDropdowns();
+      renderDashboard();
+      updateCharts();
+    }
+
     function saveDatabase() {
-      db.ref('isagaja_budget_data').set(appData);
+      saveLocalStorageOnly();
+      if (isFirebaseActive && db) {
+        db.ref('isagaja_budget_data').set(appData).catch((err) => {
+          alert("Firebase 저장 실패: " + err.message + "\n(로컬 저장소에 보관되었습니다.)");
+        });
+      }
+    }
+
+    function saveLocalStorageOnly() {
+      localStorage.setItem('isagaja_budget_data', JSON.stringify(appData));
+    }
+
+    function loadLocalStorage() {
+      const saved = localStorage.getItem('isagaja_budget_data');
+      if (saved) {
+        try {
+          appData = JSON.parse(saved);
+        } catch(e) {}
+      }
     }
 
     function applyThemeAndTitle() {
@@ -386,6 +417,7 @@
       if (!appData.theme) appData.theme = {};
       appData.theme.font = fontVal;
       saveDatabase();
+      refreshAllUI();
     }
 
     function updateAppTitle() {
@@ -393,6 +425,7 @@
       if (newTitle) {
         appData.title = newTitle;
         saveDatabase();
+        refreshAllUI();
         alert("타이틀이 변경되었습니다!");
       }
     }
@@ -401,11 +434,13 @@
       if (!appData.theme) appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC" };
       appData.theme[key] = value;
       saveDatabase();
+      refreshAllUI();
     }
 
     function resetThemeColors() {
       appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
       saveDatabase();
+      refreshAllUI();
     }
 
     function updateWarnThreshold(val) {
@@ -427,29 +462,48 @@
     }
 
     function renderDropdowns() {
-      document.getElementById('in-user').innerHTML = appData.config.users.map(u => `<option value="${u}">${u}</option>`).join('');
-      document.getElementById('in-category').innerHTML = appData.config.categories.map(c => `<option value="${c}">${c}</option>`).join('');
-      document.getElementById('in-paymethod').innerHTML = appData.config.payMethods.map(p => `<option value="${p}">${p}</option>`).join('');
+      if (!appData.config) appData.config = { categories: [], users: [], payMethods: [] };
+      document.getElementById('in-user').innerHTML = (appData.config.users || []).map(u => `<option value="${u}">${u}</option>`).join('');
+      document.getElementById('in-category').innerHTML = (appData.config.categories || []).map(c => `<option value="${c}">${c}</option>`).join('');
+      document.getElementById('in-paymethod').innerHTML = (appData.config.payMethods || []).map(p => `<option value="${p}">${p}</option>`).join('');
     }
 
     function addTransaction(e) {
       e.preventDefault();
-      const tx = {
-        id: Date.now(),
-        date: document.getElementById('in-date').value,
-        type: document.getElementById('in-type').value,
-        user: document.getElementById('in-user').value,
-        category: document.getElementById('in-category').value,
-        payMethod: document.getElementById('in-paymethod').value,
-        item: document.getElementById('in-item').value,
-        amount: parseInt(document.getElementById('in-amount').value) || 0
-      };
-      if (!appData.transactions) appData.transactions = [];
-      appData.transactions.unshift(tx);
-      saveDatabase();
-      document.getElementById('expense-form').reset();
-      document.getElementById('in-date').value = new Date().toISOString().substring(0, 10);
-      switchTab('dashboard');
+      try {
+        const dateVal = document.getElementById('in-date').value;
+        const typeVal = document.getElementById('in-type').value;
+        const userVal = document.getElementById('in-user').value;
+        const catVal = document.getElementById('in-category').value;
+        const payVal = document.getElementById('in-paymethod').value;
+        const itemVal = document.getElementById('in-item').value;
+        const amtVal = parseInt(document.getElementById('in-amount').value) || 0;
+
+        const tx = {
+          id: Date.now(),
+          date: dateVal,
+          type: typeVal,
+          user: userVal,
+          category: catVal,
+          payMethod: payVal,
+          item: itemVal,
+          amount: amtVal
+        };
+
+        if (!appData.transactions) appData.transactions = [];
+        appData.transactions.unshift(tx);
+
+        saveDatabase();
+
+        document.getElementById('in-item').value = '';
+        document.getElementById('in-amount').value = '';
+        
+        refreshAllUI();
+        alert("성공적으로 저장되었습니다!");
+        switchTab('dashboard');
+      } catch(err) {
+        alert("저장 중 오류가 발생했습니다: " + err.message);
+      }
     }
 
     function parseSMS() {
@@ -466,16 +520,16 @@
       } else {
         document.getElementById('in-item').value = "카드 승인 내역";
       }
-      alert("문자에서 금액이 파싱되었습니다!");
+      alert("문자 파싱이 완료되었습니다!");
     }
 
     function renderDashboard() {
       const assets = appData.assets || [];
       const txs = appData.transactions || [];
 
-      const totalAsset = assets.reduce((sum, a) => sum + a.amount, 0);
-      const totalIncome = txs.filter(t => t.type === '수입').reduce((sum, t) => sum + t.amount, 0);
-      const totalExpense = txs.filter(t => t.type === '지출').reduce((sum, t) => sum + t.amount, 0);
+      const totalAsset = assets.reduce((sum, a) => sum + (parseInt(a.amount)||0), 0);
+      const totalIncome = txs.filter(t => t.type === '수입').reduce((sum, t) => sum + (parseInt(t.amount)||0), 0);
+      const totalExpense = txs.filter(t => t.type === '지출').reduce((sum, t) => sum + (parseInt(t.amount)||0), 0);
       const netIncome = totalIncome - totalExpense;
       const savingsRate = totalIncome > 0 ? ((netIncome / totalIncome) * 100).toFixed(1) : 0;
 
@@ -498,7 +552,7 @@
               <div class="text-[10px] opacity-50">${t.date} · ${t.user}</div>
             </div>
             <div class="font-extrabold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
-              ${t.type === '수입' ? '+' : '-'}${t.amount.toLocaleString()}원
+              ${t.type === '수입' ? '+' : '-'}${parseInt(t.amount||0).toLocaleString()}원
             </div>
           </div>
         `).join('');
@@ -552,7 +606,7 @@
     function getAssetChartData() {
       const assets = appData.assets || [];
       const types = ['예금', '적금', '주식', '기타/부동산'];
-      const amounts = types.map(t => assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + a.amount, 0));
+      const amounts = types.map(t => assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + (parseInt(a.amount)||0), 0));
       return {
         labels: types,
         datasets: [{
@@ -566,7 +620,7 @@
     function getExpenseChartData() {
       const txs = appData.transactions || [];
       const cats = (appData.config && appData.config.categories) ? appData.config.categories.slice(0, 4) : [];
-      const amounts = cats.map(c => txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0));
+      const amounts = cats.map(c => txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + (parseInt(t.amount)||0), 0));
       return {
         labels: cats,
         datasets: [{
@@ -588,8 +642,8 @@
             <span class="font-bold ml-1 text-slate-200">${a.name}</span>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="font-bold text-emerald-400">${a.amount.toLocaleString()}원</span>
-            <button onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
+            <span class="font-bold text-emerald-400">${parseInt(a.amount||0).toLocaleString()}원</span>
+            <button type="button" onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
           </div>
         </div>
       `).join('');
@@ -605,12 +659,14 @@
       });
       saveDatabase();
       renderAssetList();
+      refreshAllUI();
     }
 
     function removeAsset(idx) {
       appData.assets.splice(idx, 1);
       saveDatabase();
       renderAssetList();
+      refreshAllUI();
     }
 
     function renderBudgetProgress() {
@@ -622,7 +678,7 @@
 
       el.innerHTML = cats.map(c => {
         const target = budgets[c] || 300000;
-        const spent = txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0);
+        const spent = txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + (parseInt(t.amount)||0), 0);
         const rawPct = Math.round((spent / target) * 100);
         const barPct = Math.min(rawPct, 100);
 
@@ -635,7 +691,7 @@
               <span class="font-bold text-xs text-slate-200">${c}</span>
               <div class="flex items-center space-x-1.5">
                 <span class="${isWarning ? 'text-rose-400 font-extrabold' : 'text-emerald-400'}">${spent.toLocaleString()} / ${target.toLocaleString()}원 (${rawPct}%)</span>
-                <button onclick="updateBudgetTarget('${c}')" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">변경</button>
+                <button type="button" onclick="updateBudgetTarget('${c}')" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">변경</button>
               </div>
             </div>
             <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -653,6 +709,7 @@
         if (!appData.config.budgets) appData.config.budgets = {};
         appData.config.budgets[category] = parseInt(newBudget);
         saveDatabase();
+        renderBudgetProgress();
       }
     }
 
@@ -660,7 +717,7 @@
       const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
-          ${c} <button onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
+          ${c} <button type="button" onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
     }
@@ -670,6 +727,8 @@
       if (val && !appData.config[type].includes(val)) {
         appData.config[type].push(val);
         saveDatabase();
+        renderSettings();
+        renderDropdowns();
         document.getElementById(inputId).value = '';
       }
     }
@@ -677,6 +736,8 @@
     function removeConfigItem(type, idx) {
       appData.config[type].splice(idx, 1);
       saveDatabase();
+      renderSettings();
+      renderDropdowns();
     }
 
     function exportData() {
@@ -689,7 +750,8 @@
 
     function resetData() {
       if (confirm("정말로 모든 데이터를 초기화하시겠습니까?")) {
-        db.ref('isagaja_budget_data').remove();
+        localStorage.removeItem('isagaja_budget_data');
+        if (isFirebaseActive && db) db.ref('isagaja_budget_data').remove();
         location.reload();
       }
     }
