@@ -63,14 +63,14 @@
     <!-- 1. 대시보드 탭 -->
     <section id="tab-dashboard" class="space-y-3.5">
       
-      <!-- 조회 기간 드롭다운 선택 필터 -->
+      <!-- 조회 기간 드롭다운 선택 필터 (기본: 전체 내역) -->
       <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
         <span class="text-xs text-slate-400 font-medium pl-1">📅 조회 기간 선택</span>
         <select id="period-select-filter" onchange="setPeriodFilter(this.value)" class="p-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs font-bold text-emerald-400 focus:outline-none">
+          <option value="all">전체 내역 (전체 기간)</option>
           <option value="month">당월 (이번 달)</option>
           <option value="quarter">당분기 (이번 분기)</option>
           <option value="year">금년도 (올해)</option>
-          <option value="all">전체 내역</option>
         </select>
       </div>
 
@@ -318,7 +318,7 @@
         </div>
       </div>
 
-      <!-- 🎨 테마 고르기 (어두운 테마 / 밝은 테마 선택) -->
+      <!-- 🎨 테마 고르기 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">🎨 테마 모드 선택</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -508,7 +508,7 @@
           clean.config.payMethods = ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"];
         }
         if (!clean.config.navOrder) {
-          clean.config.navOrder = ["dashboard", "input", "child", "asset", 'budget', "settings"];
+          clean.config.navOrder = ["dashboard", "input", "child", "asset", "budget", "settings"];
         }
       }
       if (!clean.childTransactions) clean.childTransactions = [];
@@ -538,10 +538,11 @@
       }
     };
 
-    let currentPeriodFilter = 'month';
-    let dashViewMode = 'list'; // 'list' | 'calendar'
+    // 기본 조회 필터: 'all' (전체 기간 - 데이터 유실 오해 방지)
+    let currentPeriodFilter = 'all';
+    let dashViewMode = 'list';
     let calYear = new Date().getFullYear();
-    let calMonth = new Date().getMonth() + 1; // 1 ~ 12
+    let calMonth = new Date().getMonth() + 1;
 
     let currentTxPage = 1;
     const txPerPage = 20;
@@ -611,7 +612,12 @@
     function loadLocalStorage() {
       const saved = localStorage.getItem('isagaja_budget_data');
       if (saved) {
-        try { appData = JSON.parse(saved); } catch(e) {}
+        try { 
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.transactions || parsed.assets)) {
+            appData = parsed; 
+          }
+        } catch(e) {}
       }
     }
 
@@ -635,7 +641,6 @@
       document.getElementById('budget-warn-threshold').value = appData.budgetWarnThreshold || 80;
     }
 
-    // 테마 프리셋 모드 선택 (어두운 테마 / 밝은 테마)
     function setPresetTheme(mode) {
       if (mode === 'dark') {
         appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
@@ -992,7 +997,6 @@
       return `<span class="font-extrabold text-sm text-white">${dayNum}</span> <span class="text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded ml-1">${dayName}</span> <span class="text-[9px] text-slate-500 ml-1">${dateStr.replace(/-/g, '.')}</span>`;
     }
 
-    // 📅 대시보드 뷰 모드 전환 (일별 피드 vs 달력)
     function setDashboardViewMode(mode) {
       dashViewMode = mode;
       if (mode === 'list') {
@@ -1016,23 +1020,20 @@
       renderCalendarView();
     }
 
-    // 📆 달력 뷰 렌더링
     function renderCalendarView() {
       document.getElementById('cal-month-title').innerText = `${calYear}년 ${calMonth}월`;
       const gridEl = document.getElementById('calendar-grid');
       gridEl.innerHTML = '';
 
-      const firstDay = new Date(calYear, calMonth - 1, 1).getDay(); // 0(일) ~ 6(토)
+      const firstDay = new Date(calYear, calMonth - 1, 1).getDay();
       const lastDate = new Date(calYear, calMonth, 0).getDate();
 
       const txs = appData.transactions || [];
 
-      // 빈 칸 채우기
       for (let i = 0; i < firstDay; i++) {
         gridEl.innerHTML += `<div class="p-1 min-h-[50px] bg-slate-950/20 rounded"></div>`;
       }
 
-      // 날짜 채우기
       for (let day = 1; day <= lastDate; day++) {
         const dayStr = `${calYear}-${String(calMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         const dayTxs = txs.filter(t => t.date === dayStr);
@@ -1052,7 +1053,6 @@
       }
     }
 
-    // 달력 날짜 클릭 시 상세 내역 모달 팝업
     function openDayDetailModal(dateStr) {
       const dayTxs = (appData.transactions || []).filter(t => t.date === dateStr);
       document.getElementById('day-detail-title').innerText = `${dateStr} 세부 내역 (${dayTxs.length}건)`;
@@ -1345,7 +1345,6 @@
       const recurrings = appData.recurring || [];
       const navOrder = (appData.config && appData.config.navOrder) ? appData.config.navOrder : ["dashboard", "input", "child", "asset", "budget", "settings"];
 
-      // 📌 네비게이션 순서 조정 목록
       document.getElementById('nav-order-list').innerHTML = navOrder.map((k, idx) => {
         const meta = navMeta[k];
         return `
@@ -1359,28 +1358,24 @@
         `;
       }).join('');
 
-      // 카테고리 태그
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
           ${c.replace(/_/g, '/')} <button type="button" onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
 
-      // 사용자 태그
       document.getElementById('setting-user-tags').innerHTML = users.map((u, i) => `
         <span class="text-xs bg-slate-900 text-teal-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
           ${u} <button type="button" onclick="removeConfigItem('users', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
-      // 결제수단 태그
       document.getElementById('setting-pay-tags').innerHTML = pays.map((p, i) => `
         <span class="text-xs bg-slate-900 text-emerald-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
           ${p} <button type="button" onclick="removeConfigItem('payMethods', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
-      // 고정지출 목록
       const recListEl = document.getElementById('recurring-list');
       if (recurrings.length === 0) {
         recListEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-1">등록된 고정 지출이 없습니다.</div>';
