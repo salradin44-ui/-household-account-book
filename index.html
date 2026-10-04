@@ -8,7 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 웹 폰트 모음 (Pretendard, Gmarket Sans, Nanum Gothic) -->
+  <!-- Firebase SDK CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- 웹 폰트 모음 -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap">
   <style>
@@ -48,8 +51,8 @@
       <span class="text-xl">🏠</span>
       <h1 class="text-lg font-bold tracking-tight text-white" id="header-title-text">이사가자 시안아!</h1>
     </div>
-    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
-      실시간 연동
+    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1" id="sync-status">
+      <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> 실시간 연동중
     </span>
   </header>
 
@@ -58,8 +61,6 @@
 
     <!-- 1. 대시보드 탭 -->
     <section id="tab-dashboard" class="space-y-3.5">
-      
-      <!-- 대형 상단 자산 요약 배너 -->
       <div class="card-glass p-4 rounded-2xl space-y-2">
         <div class="text-xs text-slate-400 font-medium">총 자산 평가액</div>
         <div class="text-3xl font-extrabold tracking-tight text-white" id="dash-total-asset">0원</div>
@@ -74,7 +75,6 @@
         </div>
       </div>
 
-      <!-- 당월 수입 & 지출 카드 -->
       <div class="grid grid-cols-2 gap-3">
         <div class="card-glass p-3.5 rounded-2xl border-l-4 border-l-emerald-500">
           <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
@@ -90,7 +90,6 @@
         </div>
       </div>
 
-      <!-- 자산 포트폴리오 도넛 차트 -->
       <div class="card-glass p-4 rounded-2xl space-y-2">
         <div class="flex justify-between items-center text-xs">
           <h3 class="font-bold text-white flex items-center gap-1.5">
@@ -103,7 +102,6 @@
         </div>
       </div>
 
-      <!-- 카테고리별 지출 분석 차트 -->
       <div class="card-glass p-4 rounded-2xl space-y-2">
         <div class="flex justify-between items-center text-xs">
           <h3 class="font-bold text-white flex items-center gap-1.5">
@@ -116,7 +114,6 @@
         </div>
       </div>
 
-      <!-- 최근 내역 -->
       <div class="card-glass p-4 rounded-2xl space-y-2.5">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-bold text-white">최근 거래 내역</h3>
@@ -132,7 +129,6 @@
         <span>📝</span> 지출 및 수입 기록
       </h2>
 
-      <!-- 문자 빠른 파싱 -->
       <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
         <div class="text-xs text-emerald-300 font-semibold">⚡ 결제 문자/알림톡 복사 붙여넣기</div>
         <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 복사해서 여기에 붙여넣으세요" class="w-full text-xs p-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-400"></textarea>
@@ -219,13 +215,12 @@
       <div id="budget-progress-list" class="space-y-3"></div>
     </section>
 
-    <!-- 5. 설정 탭 (글꼴 폰트 선택 기능 포함) -->
+    <!-- 5. 설정 탭 -->
     <section id="tab-settings" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
         <span>⚙️</span> 가계부 설정 & 테마
       </h2>
 
-      <!-- 타이틀 수정 -->
       <div class="space-y-1.5">
         <label class="text-xs font-bold opacity-80">가계부 이름 변경</label>
         <div class="flex gap-2">
@@ -234,7 +229,6 @@
         </div>
       </div>
 
-      <!-- 폰트 글꼴 선택 -->
       <div class="space-y-1.5 border-t border-slate-800 pt-3">
         <label class="text-xs font-bold opacity-80">앱 폰트(글꼴) 선택</label>
         <select id="font-family-select" onchange="changeFontFamily(this.value)" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 focus:outline-none">
@@ -244,7 +238,6 @@
         </select>
       </div>
 
-      <!-- 색상 커스텀 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">앱 배경 및 글씨 색상</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -260,7 +253,6 @@
         <button onclick="resetThemeColors()" class="w-full py-1 bg-slate-800 text-[11px] rounded border border-slate-700 text-slate-300">기본 테마 복원</button>
       </div>
 
-      <!-- 카테고리 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">카테고리 항목 관리</h3>
         <div class="flex gap-2">
@@ -270,7 +262,6 @@
         <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 백업 및 초기화 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">데이터 백업 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -282,7 +273,6 @@
 
   </main>
 
-  <!-- 하단 네비게이션 탭 바 -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
     <div class="flex justify-around items-center h-14 text-[11px] opacity-80">
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-0.5 active-tab">
@@ -308,8 +298,25 @@
     </div>
   </nav>
 
-  <!-- JS 로직 -->
+  <!-- JS 및 파이어베이스 연동 로직 -->
   <script>
+    // ========================================================
+    // 🔥 [이곳에 본인의 FIREBASE 설정 키를 입력하세요] 🔥
+    // ========================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVrDiogWtDE6oIj798HcbIoQWdZsNrudM",
+      authDomain: "jaeho-household-account-book.firebaseapp.com",
+      databaseURL: "https://jaeho-household-account-book-default-rtdb.firebaseio.com",
+      projectId: "jaeho-household-account-book",
+      storageBucket: "jaeho-household-account-book.firebasestorage.app",
+      messagingSenderId: "1078732817028",
+      appId: "1:1078732817028:web:a2604f0c752f06f75938d1"
+    };
+
+    // Firebase 초기화
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     let appData = {
       title: "이사가자 시안아!",
       theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
@@ -333,23 +340,27 @@
     let barChart = null;
 
     window.onload = function() {
-      loadLocalStorage();
-      applyThemeAndTitle();
+      // 파이어베이스 실시간 수신 리스너 등록
+      db.ref('isagaja_budget_data').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          appData = val;
+          applyThemeAndTitle();
+          renderDropdowns();
+          renderDashboard();
+          updateCharts();
+        }
+      });
+
       document.getElementById('in-date').value = new Date().toISOString().substring(0, 10);
       renderDropdowns();
       renderDashboard();
       initCharts();
     };
 
-    function saveLocalStorage() {
-      localStorage.setItem('isagaja_budget_data', JSON.stringify(appData));
-      renderDashboard();
-      updateCharts();
-    }
-
-    function loadLocalStorage() {
-      const saved = localStorage.getItem('isagaja_budget_data');
-      if (saved) appData = JSON.parse(saved);
+    // 파이어베이스 DB 실시간 저장
+    function saveDatabase() {
+      db.ref('isagaja_budget_data').set(appData);
     }
 
     function applyThemeAndTitle() {
@@ -374,16 +385,14 @@
     function changeFontFamily(fontVal) {
       if (!appData.theme) appData.theme = {};
       appData.theme.font = fontVal;
-      saveLocalStorage();
-      applyThemeAndTitle();
+      saveDatabase();
     }
 
     function updateAppTitle() {
       const newTitle = document.getElementById('setting-title-input').value.trim();
       if (newTitle) {
         appData.title = newTitle;
-        saveLocalStorage();
-        applyThemeAndTitle();
+        saveDatabase();
         alert("타이틀이 변경되었습니다!");
       }
     }
@@ -391,22 +400,17 @@
     function changeThemeColor(key, value) {
       if (!appData.theme) appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC" };
       appData.theme[key] = value;
-      saveLocalStorage();
-      applyThemeAndTitle();
+      saveDatabase();
     }
 
     function resetThemeColors() {
       appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
-      saveLocalStorage();
-      applyThemeAndTitle();
+      saveDatabase();
     }
 
     function updateWarnThreshold(val) {
       appData.budgetWarnThreshold = parseInt(val) || 80;
-      saveLocalStorage();
-      if (!document.getElementById('tab-budget').classList.contains('hidden')) {
-        renderBudgetProgress();
-      }
+      saveDatabase();
     }
 
     function switchTab(tabName) {
@@ -440,14 +444,14 @@
         item: document.getElementById('in-item').value,
         amount: parseInt(document.getElementById('in-amount').value) || 0
       };
+      if (!appData.transactions) appData.transactions = [];
       appData.transactions.unshift(tx);
-      saveLocalStorage();
+      saveDatabase();
       document.getElementById('expense-form').reset();
       document.getElementById('in-date').value = new Date().toISOString().substring(0, 10);
       switchTab('dashboard');
     }
 
-    // 문자 자동 파싱 및 추출 기능
     function parseSMS() {
       const text = document.getElementById('sms-text').value;
       if (!text) return;
@@ -456,21 +460,22 @@
       if (amtMatch) {
         document.getElementById('in-amount').value = parseInt(amtMatch[1].replace(/,/g, ''));
       }
-      
-      // 상호명 추출 파싱
       const parts = text.split(/\s+/);
       if (parts.length > 2) {
         document.getElementById('in-item').value = parts[parts.length - 1] || "카드 승인 내역";
       } else {
         document.getElementById('in-item').value = "카드 승인 내역";
       }
-      alert("문자에서 금액 및 상호가 자동 채워졌습니다!");
+      alert("문자에서 금액이 파싱되었습니다!");
     }
 
     function renderDashboard() {
-      const totalAsset = appData.assets.reduce((sum, a) => sum + a.amount, 0);
-      const totalIncome = appData.transactions.filter(t => t.type === '수입').reduce((sum, t) => sum + t.amount, 0);
-      const totalExpense = appData.transactions.filter(t => t.type === '지출').reduce((sum, t) => sum + t.amount, 0);
+      const assets = appData.assets || [];
+      const txs = appData.transactions || [];
+
+      const totalAsset = assets.reduce((sum, a) => sum + a.amount, 0);
+      const totalIncome = txs.filter(t => t.type === '수입').reduce((sum, t) => sum + t.amount, 0);
+      const totalExpense = txs.filter(t => t.type === '지출').reduce((sum, t) => sum + t.amount, 0);
       const netIncome = totalIncome - totalExpense;
       const savingsRate = totalIncome > 0 ? ((netIncome / totalIncome) * 100).toFixed(1) : 0;
 
@@ -480,13 +485,13 @@
       document.getElementById('dash-net-income').innerText = netIncome.toLocaleString() + '원';
       document.getElementById('dash-savings-rate').innerText = savingsRate + '%';
       
-      document.getElementById('dash-asset-count').innerText = appData.assets.length + '개 항목 보유';
+      document.getElementById('dash-asset-count').innerText = assets.length + '개 항목 보유';
 
       const listEl = document.getElementById('recent-expense-list');
-      if (appData.transactions.length === 0) {
+      if (txs.length === 0) {
         listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-2">등록된 내역이 없습니다.</div>';
       } else {
-        listEl.innerHTML = appData.transactions.slice(0, 5).map(t => `
+        listEl.innerHTML = txs.slice(0, 5).map(t => `
           <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800/80">
             <div>
               <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${t.category})</span></div>
@@ -545,8 +550,9 @@
     }
 
     function getAssetChartData() {
+      const assets = appData.assets || [];
       const types = ['예금', '적금', '주식', '기타/부동산'];
-      const amounts = types.map(t => appData.assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + a.amount, 0));
+      const amounts = types.map(t => assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + a.amount, 0));
       return {
         labels: types,
         datasets: [{
@@ -558,8 +564,9 @@
     }
 
     function getExpenseChartData() {
-      const cats = appData.config.categories.slice(0, 4);
-      const amounts = cats.map(c => appData.transactions.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0));
+      const txs = appData.transactions || [];
+      const cats = (appData.config && appData.config.categories) ? appData.config.categories.slice(0, 4) : [];
+      const amounts = cats.map(c => txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0));
       return {
         labels: cats,
         datasets: [{
@@ -573,7 +580,8 @@
     }
 
     function renderAssetList() {
-      document.getElementById('asset-list').innerHTML = appData.assets.map((a, idx) => `
+      const assets = appData.assets || [];
+      document.getElementById('asset-list').innerHTML = assets.map((a, idx) => `
         <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800">
           <div>
             <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${a.type}</span>
@@ -589,28 +597,32 @@
 
     function addAsset(e) {
       e.preventDefault();
+      if (!appData.assets) appData.assets = [];
       appData.assets.push({
         type: document.getElementById('asset-type').value,
         name: document.getElementById('asset-name').value,
         amount: parseInt(document.getElementById('asset-amount').value) || 0
       });
-      saveLocalStorage();
+      saveDatabase();
       renderAssetList();
     }
 
     function removeAsset(idx) {
       appData.assets.splice(idx, 1);
-      saveLocalStorage();
+      saveDatabase();
       renderAssetList();
     }
 
     function renderBudgetProgress() {
       const el = document.getElementById('budget-progress-list');
       const threshold = appData.budgetWarnThreshold || 80;
+      const txs = appData.transactions || [];
+      const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
+      const budgets = (appData.config && appData.config.budgets) ? appData.config.budgets : {};
 
-      el.innerHTML = appData.config.categories.map(c => {
-        const target = appData.config.budgets[c] || 300000;
-        const spent = appData.transactions.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0);
+      el.innerHTML = cats.map(c => {
+        const target = budgets[c] || 300000;
+        const spent = txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0);
         const rawPct = Math.round((spent / target) * 100);
         const barPct = Math.min(rawPct, 100);
 
@@ -635,17 +647,18 @@
     }
 
     function updateBudgetTarget(category) {
-      const current = appData.config.budgets[category] || 300000;
+      const current = (appData.config && appData.config.budgets && appData.config.budgets[category]) || 300000;
       const newBudget = prompt(`[${category}] 카테고리의 월 목표 예산 금액을 입력하세요:`, current);
       if (newBudget !== null && !isNaN(newBudget) && newBudget.trim() !== '') {
+        if (!appData.config.budgets) appData.config.budgets = {};
         appData.config.budgets[category] = parseInt(newBudget);
-        saveLocalStorage();
-        renderBudgetProgress();
+        saveDatabase();
       }
     }
 
     function renderSettings() {
-      document.getElementById('setting-cat-tags').innerHTML = appData.config.categories.map((c, i) => `
+      const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
+      document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
           ${c} <button onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
@@ -656,18 +669,14 @@
       const val = document.getElementById(inputId).value.trim();
       if (val && !appData.config[type].includes(val)) {
         appData.config[type].push(val);
-        saveLocalStorage();
-        renderDropdowns();
-        renderSettings();
+        saveDatabase();
         document.getElementById(inputId).value = '';
       }
     }
 
     function removeConfigItem(type, idx) {
       appData.config[type].splice(idx, 1);
-      saveLocalStorage();
-      renderDropdowns();
-      renderSettings();
+      saveDatabase();
     }
 
     function exportData() {
@@ -680,7 +689,7 @@
 
     function resetData() {
       if (confirm("정말로 모든 데이터를 초기화하시겠습니까?")) {
-        localStorage.removeItem('isagaja_budget_data');
+        db.ref('isagaja_budget_data').remove();
         location.reload();
       }
     }
