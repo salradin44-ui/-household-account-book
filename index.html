@@ -8,9 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDK CDN -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- Firebase SDK CDN (안정화 정식 버전) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <!-- 웹 폰트 모음 -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap">
@@ -393,7 +393,36 @@
     }
 
     function sanitizeKey(key) {
-      return key.replace(/[\/\.#\$\[\]]/g, "_");
+      return (key || "").replace(/[\/\.#\$\[\]]/g, "_");
+    }
+
+    function sanitizeAppData(data) {
+      if (!data) return data;
+      const clean = JSON.parse(JSON.stringify(data));
+
+      if (clean.config) {
+        if (clean.config.categories) {
+          clean.config.categories = clean.config.categories.map(c => sanitizeKey(c));
+        }
+        if (clean.config.budgets) {
+          const newBudgets = {};
+          for (let k in clean.config.budgets) {
+            newBudgets[sanitizeKey(k)] = clean.config.budgets[k];
+          }
+          clean.config.budgets = newBudgets;
+        }
+      }
+      if (clean.transactions) {
+        clean.transactions.forEach(t => {
+          if (t.category) t.category = sanitizeKey(t.category);
+        });
+      }
+      if (clean.assets) {
+        clean.assets.forEach(a => {
+          if (a.type) a.type = sanitizeKey(a.type);
+        });
+      }
+      return clean;
     }
 
     let appData = {
@@ -415,7 +444,7 @@
       }
     };
 
-    let currentPeriodFilter = 'month'; // 'month', 'quarter', 'year', 'all'
+    let currentPeriodFilter = 'month';
     let currentTxPage = 1;
     const txPerPage = 20;
 
@@ -424,15 +453,19 @@
 
     window.onload = function() {
       loadLocalStorage();
+      appData = sanitizeAppData(appData);
 
       if (isFirebaseActive && db) {
+        // v8 라이브러리 호환 실시간 리스너
         db.ref('isagaja_budget_data').on('value', (snapshot) => {
           const val = snapshot.val();
           if (val) {
-            appData = val;
+            appData = sanitizeAppData(val);
             saveLocalStorageOnly();
             refreshAllUI();
           }
+        }, (error) => {
+          console.error("Firebase Read Error:", error);
         });
       }
 
@@ -449,14 +482,14 @@
     }
 
     function saveDatabase() {
-      // 1) 화면 UI 즉각 업데이트 (딜레이 없음)
+      appData = sanitizeAppData(appData);
       refreshAllUI();
       saveLocalStorageOnly();
 
-      // 2) 백그라운드 Firebase 연동
       if (isFirebaseActive && db) {
-        const cleanData = JSON.parse(JSON.stringify(appData));
-        db.ref('isagaja_budget_data').set(cleanData);
+        db.ref('isagaja_budget_data').set(appData).catch((err) => {
+          console.error("Firebase Sync Silent Catch:", err);
+        });
       }
     }
 
@@ -501,7 +534,6 @@
       if (newTitle) {
         appData.title = newTitle;
         saveDatabase();
-        alert("타이틀이 변경되었습니다!");
       }
     }
 
@@ -606,7 +638,7 @@
         saveDatabase();
         switchTab('dashboard');
       } catch(err) {
-        alert("저장 오류: " + err.message);
+        console.error("Add Tx Error:", err);
       }
     }
 
@@ -670,7 +702,6 @@
       } else {
         document.getElementById('in-item').value = "카드 승인 내역";
       }
-      alert("문자 파싱이 완료되었습니다!");
     }
 
     function renderDashboard() {
@@ -691,7 +722,6 @@
       
       document.getElementById('dash-asset-count').innerText = assets.length + '개 항목 보유';
 
-      // 거래 내역 20개 노출 & 즉시 반영
       const totalCount = filteredTxs.length;
       const totalPages = Math.ceil(totalCount / txPerPage) || 1;
       if (currentTxPage > totalPages) currentTxPage = totalPages;
@@ -711,7 +741,7 @@
         listEl.innerHTML = pageTxs.map(t => `
           <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
             <div>
-              <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${t.category.replace(/_/g, '/')})</span></div>
+              <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
               <div class="text-[10px] opacity-50">${t.date} · ${t.user} · ${t.payMethod}</div>
             </div>
             <div class="flex items-center space-x-2">
@@ -821,7 +851,7 @@
       document.getElementById('asset-list').innerHTML = assets.map((a, idx) => `
         <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800">
           <div>
-            <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${a.type.replace(/_/g, '/')}</span>
+            <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${(a.type||"").replace(/_/g, '/')}</span>
             <span class="font-bold ml-1 text-slate-200">${a.name}</span>
           </div>
           <div class="flex items-center space-x-2">
@@ -926,7 +956,7 @@
     function exportData() {
       const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
+      a.href = URL.clickObjectURL(blob);
       a.download = `isagaja_budget_backup.json`;
       a.click();
     }
