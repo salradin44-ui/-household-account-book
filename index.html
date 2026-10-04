@@ -129,17 +129,19 @@
         </div>
       </div>
 
-      <!-- 거래 내역 (20개 단위 및 페이지 이동 지원) -->
+      <!-- 일별 그룹화 거래 내역 (스크린샷 피드 반영) -->
       <div class="card-glass p-4 rounded-2xl space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-white">최근 거래 내역</h3>
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <h3 class="text-xs font-bold text-white flex items-center gap-1">
+            <span>📅</span> 일별 상세 내역
+          </h3>
           <span class="text-[10px] text-slate-400" id="tx-page-info">1 / 1 페이지</span>
         </div>
         
-        <div id="recent-expense-list" class="space-y-2 text-xs"></div>
+        <div id="recent-expense-list" class="space-y-3 text-xs"></div>
 
         <!-- 페이지네이션 컨트롤 -->
-        <div class="flex justify-between items-center pt-2 text-xs">
+        <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
           <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
           <span class="text-[11px] text-slate-400" id="tx-total-count">총 0건</span>
           <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
@@ -199,7 +201,53 @@
       </form>
     </section>
 
-    <!-- 3. 자산현황 탭 -->
+    <!-- 3. 자녀용 독립 가계부 탭 (신규 추가!) -->
+    <section id="tab-child" class="hidden space-y-4">
+      <div class="card-glass p-4 rounded-2xl space-y-3">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <h2 class="text-base font-bold text-sky-400 flex items-center gap-1.5">
+            <span>👶</span> 자녀 전용 용돈/지출 관리
+          </h2>
+          <span class="text-[10px] bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-500/30">독립 가계부</span>
+        </div>
+
+        <!-- 자녀 자산/용돈 잔액 요약 -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400">자녀 용돈 총 입금</div>
+            <div class="text-sm font-bold text-emerald-400" id="child-total-income">0원</div>
+          </div>
+          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400">자녀 용돈 총 지출</div>
+            <div class="text-sm font-bold text-rose-400" id="child-total-expense">0원</div>
+          </div>
+        </div>
+
+        <!-- 자녀용 지출/입금 등록 폼 -->
+        <form onsubmit="addChildTransaction(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="date" id="child-in-date" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <select id="child-in-type" class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+              <option value="지출">자녀 지출</option>
+              <option value="수입">자녀 용돈 지급(수입)</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 문구점)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="number" id="child-in-amount" placeholder="금액 (원)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          </div>
+          <button type="submit" class="w-full py-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-lg text-xs transition">자녀 내역 저장</button>
+        </form>
+
+        <!-- 자녀 거래 내역 목록 -->
+        <div class="pt-2">
+          <h3 class="text-xs font-bold text-slate-300 mb-2">최근 자녀 용돈/지출 내역</h3>
+          <div id="child-transaction-list" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 자산현황 탭 -->
     <section id="tab-asset" class="hidden space-y-3">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
@@ -224,7 +272,7 @@
       </div>
     </section>
 
-    <!-- 4. 예산관리 탭 -->
+    <!-- 5. 예산관리 탭 -->
     <section id="tab-budget" class="hidden card-glass p-4 rounded-2xl space-y-3">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
         <h2 class="text-base font-bold text-emerald-400 flex items-center gap-1.5">
@@ -239,10 +287,10 @@
       <div id="budget-progress-list" class="space-y-3"></div>
     </section>
 
-    <!-- 5. 설정 탭 -->
+    <!-- 6. 설정 탭 -->
     <section id="tab-settings" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
-        <span>⚙️</span> 가계부 설정 & 자동이체
+        <span>⚙️</span> 가계부 설정 & 고정지출
       </h2>
 
       <!-- 가계부 이름 변경 -->
@@ -258,10 +306,20 @@
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">👤 사용자 (구성원) 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내, 첫째)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
           <button type="button" onclick="addConfigItem('users', 'new-user-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-user-tags" class="flex flex-wrap gap-1"></div>
+      </div>
+
+      <!-- 💳 결제 수단 관리 (현금영수증 기본 추가!) -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">💳 결제 수단 관리</h3>
+        <div class="flex gap-2">
+          <input type="text" id="new-pay-input" placeholder="새 결제 수단 (예: 카카오페이)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <button type="button" onclick="addConfigItem('payMethods', 'new-pay-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
+        </div>
+        <div id="setting-pay-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
       <!-- 🔄 월별 고정지출/자동이체 등록 관리 -->
@@ -377,8 +435,9 @@
     </div>
   </div>
 
+  <!-- 하단 6개 탭 네비게이션 (자녀용 탭 포함!) -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
-    <div class="flex justify-around items-center h-14 text-[11px] opacity-80">
+    <div class="flex justify-around items-center h-14 text-[10px] opacity-80">
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-0.5 active-tab">
         <span class="text-base">📊</span>
         <span>대시보드</span>
@@ -386,6 +445,10 @@
       <button onclick="switchTab('input')" id="nav-input" class="flex flex-col items-center space-y-0.5">
         <span class="text-base">📝</span>
         <span>지출입력</span>
+      </button>
+      <button onclick="switchTab('child')" id="nav-child" class="flex flex-col items-center space-y-0.5">
+        <span class="text-base">👶</span>
+        <span>자녀용</span>
       </button>
       <button onclick="switchTab('asset')" id="nav-asset" class="flex flex-col items-center space-y-0.5">
         <span class="text-base">🏦</span>
@@ -444,17 +507,14 @@
           }
           clean.config.budgets = newBudgets;
         }
+        // 기본 결제수단에 '현금영수증' 추가
+        if (!clean.config.payMethods) {
+          clean.config.payMethods = ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"];
+        } else if (!clean.config.payMethods.includes("현금영수증")) {
+          clean.config.payMethods.push("현금영수증");
+        }
       }
-      if (clean.transactions) {
-        clean.transactions.forEach(t => {
-          if (t.category) t.category = sanitizeKey(t.category);
-        });
-      }
-      if (clean.assets) {
-        clean.assets.forEach(a => {
-          if (a.type) a.type = sanitizeKey(a.type);
-        });
-      }
+      if (!clean.childTransactions) clean.childTransactions = [];
       if (!clean.recurring) clean.recurring = [];
       return clean;
     }
@@ -464,7 +524,8 @@
       theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
       budgetWarnThreshold: 80,
       transactions: [],
-      recurring: [], // 월별 자동이체 고정지출 항목 목록
+      childTransactions: [], // 자녀 전용 독립 거래내역
+      recurring: [],
       assets: [
         { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
         { type: '적금', name: '청약저축', amount: 6000000 },
@@ -474,7 +535,7 @@
       config: {
         categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
         users: ["남편", "아내", "공동"],
-        payMethods: ["신용카드", "체크카드", "현금", "계좌이체", "자동이체"],
+        payMethods: ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"],
         budgets: { "식비": 600000, "주거_공과금": 500000, "교통_차량": 300000, "육아_교육": 600000 }
       }
     };
@@ -501,7 +562,12 @@
         });
       }
 
-      document.getElementById('in-date').value = new Date().toISOString().substring(0, 10);
+      const todayStr = new Date().toISOString().substring(0, 10);
+      document.getElementById('in-date').value = todayStr;
+      if (document.getElementById('child-in-date')) {
+        document.getElementById('child-in-date').value = todayStr;
+      }
+
       refreshAllUI();
       initCharts();
     };
@@ -510,6 +576,7 @@
       applyThemeAndTitle();
       renderDropdowns();
       renderDashboard();
+      renderChildTab();
       updateCharts();
     }
 
@@ -566,7 +633,6 @@
       if (newTitle) {
         appData.title = newTitle;
         saveDatabase();
-        alert("타이틀이 변경되었습니다!");
       }
     }
 
@@ -620,13 +686,14 @@
     }
 
     function switchTab(tabName) {
-      ['dashboard', 'input', 'asset', 'budget', 'settings'].forEach(t => {
+      ['dashboard', 'input', 'child', 'asset', 'budget', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
         document.getElementById(`nav-${t}`).classList.remove('active-tab');
       });
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
       document.getElementById(`nav-${tabName}`).classList.add('active-tab');
 
+      if (tabName === 'child') renderChildTab();
       if (tabName === 'asset') renderAssetList();
       if (tabName === 'budget') renderBudgetProgress();
       if (tabName === 'settings') renderSettings();
@@ -676,6 +743,64 @@
         switchTab('dashboard');
       } catch(err) {
         console.error("Add Tx Error:", err);
+      }
+    }
+
+    // 👶 자녀용 독립 가계부 전용 함수들
+    function addChildTransaction(e) {
+      e.preventDefault();
+      const tx = {
+        id: Date.now(),
+        date: document.getElementById('child-in-date').value,
+        type: document.getElementById('child-in-type').value,
+        item: document.getElementById('child-in-item').value,
+        amount: parseInt(document.getElementById('child-in-amount').value) || 0
+      };
+
+      if (!appData.childTransactions) appData.childTransactions = [];
+      appData.childTransactions.unshift(tx);
+
+      document.getElementById('child-in-item').value = '';
+      document.getElementById('child-in-amount').value = '';
+
+      saveDatabase();
+      renderChildTab();
+    }
+
+    function deleteChildTransaction(id) {
+      if (confirm("이 자녀 거래 내역을 삭제하시겠습니까?")) {
+        appData.childTransactions = (appData.childTransactions || []).filter(c => c.id !== id);
+        saveDatabase();
+        renderChildTab();
+      }
+    }
+
+    function renderChildTab() {
+      const childTxs = appData.childTransactions || [];
+      const totalIncome = childTxs.filter(t => t.type === '수입').reduce((sum, t) => sum + t.amount, 0);
+      const totalExpense = childTxs.filter(t => t.type === '지출').reduce((sum, t) => sum + t.amount, 0);
+
+      document.getElementById('child-total-income').innerText = totalIncome.toLocaleString() + '원';
+      document.getElementById('child-total-expense').innerText = totalExpense.toLocaleString() + '원';
+
+      const listEl = document.getElementById('child-transaction-list');
+      if (childTxs.length === 0) {
+        listEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-2">등록된 자녀 내역이 없습니다.</div>';
+      } else {
+        listEl.innerHTML = childTxs.map(t => `
+          <div class="flex justify-between items-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+            <div>
+              <div class="font-bold text-slate-200">${t.item}</div>
+              <div class="text-[10px] text-slate-500">${t.date}</div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
+                ${t.type === '수입' ? '+' : '-'}${t.amount.toLocaleString()}원
+              </span>
+              <button onclick="deleteChildTransaction(${t.id})" class="text-[10px] bg-rose-950 text-rose-400 px-1.5 py-0.5 rounded border border-rose-900">삭제</button>
+            </div>
+          </div>
+        `).join('');
       }
     }
 
@@ -741,7 +866,6 @@
       }
     }
 
-    // 🔄 자동이체/고정지출 관리 함수들
     function addRecurringItem(e) {
       e.preventDefault();
       if (!appData.recurring) appData.recurring = [];
@@ -807,6 +931,17 @@
       alert(`이번 달 자동이체 지출 ${addedCount}건이 일괄 반영되었습니다!`);
     }
 
+    // 📅 날짜 한글 요어 생성 함수 (예: 04일 일요일)
+    function getKoreanDateHeader(dateStr) {
+      if (!dateStr) return "";
+      const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+      const d = new Date(dateStr);
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const dayName = days[d.getDay()];
+      return `<span class="font-extrabold text-sm text-white">${dayNum}</span> <span class="text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded ml-1">${dayName}</span> <span class="text-[9px] text-slate-500 ml-1">${dateStr.replace(/-/g, '.')}</span>`;
+    }
+
+    // 스크린샷 완벽 구현: 일별 그룹화 피드 렌더링
     function renderDashboard() {
       const assets = appData.assets || [];
       const filteredTxs = getFilteredTransactions();
@@ -841,21 +976,54 @@
       if (pageTxs.length === 0) {
         listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-3">해당 기간의 거래 내역이 없습니다.</div>';
       } else {
-        listEl.innerHTML = pageTxs.map(t => `
-          <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
-            <div>
-              <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
-              <div class="text-[10px] opacity-50">${t.date} · ${t.user} · ${t.payMethod}</div>
+        // 날짜별 그룹화 (Group By Date)
+        const grouped = {};
+        pageTxs.forEach(t => {
+          if (!grouped[t.date]) grouped[t.date] = [];
+          grouped[t.date].push(t);
+        });
+
+        let html = '';
+        for (let dateKey in grouped) {
+          const dayItems = grouped[dateKey];
+          const dayIncome = dayItems.filter(t => t.type === '수입').reduce((s, t) => s + (parseInt(t.amount)||0), 0);
+          const dayExpense = dayItems.filter(t => t.type === '지출').reduce((s, t) => s + (parseInt(t.amount)||0), 0);
+
+          html += `
+            <div class="space-y-1.5 pt-1">
+              <!-- 날짜 헤더 & 일별 수입/지출 합계 -->
+              <div class="flex justify-between items-center bg-slate-900/90 px-3 py-1.5 rounded-lg border-l-2 border-l-amber-400">
+                <div class="flex items-center">
+                  ${getKoreanDateHeader(dateKey)}
+                </div>
+                <div class="text-[10px] space-x-2">
+                  <span class="text-emerald-400">${dayIncome > 0 ? '+' + dayIncome.toLocaleString() + '원' : '0원'}</span>
+                  <span class="text-rose-400">${dayExpense > 0 ? '-' + dayExpense.toLocaleString() + '원' : '0원'}</span>
+                </div>
+              </div>
+
+              <!-- 일별 항목 피드 내역 -->
+              <div class="space-y-1.5 pl-1">
+                ${dayItems.map(t => `
+                  <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                    <div>
+                      <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
+                      <div class="text-[10px] text-slate-400">${t.user} ·${t.payMethod}</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="font-extrabold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${t.type === '수입' ? '+' : '-'}${parseInt(t.amount||0).toLocaleString()}원
+                      </span>
+                      <button onclick="openEditModal(${t.id})" class="text-[9px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">수정</button>
+                      <button onclick="deleteTransaction(${t.id})" class="text-[9px] bg-rose-950 text-rose-400 px-1.5 py-0.5 rounded border border-rose-900">삭제</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <span class="font-extrabold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
-                ${t.type === '수입' ? '+' : '-'}${parseInt(t.amount||0).toLocaleString()}원
-              </span>
-              <button onclick="openEditModal(${t.id})" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">수정</button>
-              <button onclick="deleteTransaction(${t.id})" class="text-[10px] bg-rose-950 text-rose-400 px-1.5 py-0.5 rounded border border-rose-900">삭제</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }
+        listEl.innerHTML = html;
       }
     }
 
@@ -1031,23 +1199,31 @@
     function renderSettings() {
       const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
       const users = (appData.config && appData.config.users) ? appData.config.users : [];
+      const pays = (appData.config && appData.config.payMethods) ? appData.config.payMethods : [];
       const recurrings = appData.recurring || [];
 
-      // 카테고리 태그 출력
+      // 카테고리 태그
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
           ${c.replace(/_/g, '/')} <button type="button" onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
 
-      // 사용자 태그 출력
+      // 사용자 태그
       document.getElementById('setting-user-tags').innerHTML = users.map((u, i) => `
         <span class="text-xs bg-slate-900 text-teal-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
           ${u} <button type="button" onclick="removeConfigItem('users', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
-      // 고정지출 목록 출력
+      // 결제수단 태그
+      document.getElementById('setting-pay-tags').innerHTML = pays.map((p, i) => `
+        <span class="text-xs bg-slate-900 text-emerald-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
+          ${p} <button type="button" onclick="removeConfigItem('payMethods', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
+        </span>
+      `).join('');
+
+      // 고정지출 목록
       const recListEl = document.getElementById('recurring-list');
       if (recurrings.length === 0) {
         recListEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-1">등록된 고정 지출이 없습니다.</div>';
