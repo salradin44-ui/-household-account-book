@@ -25,6 +25,9 @@
       --bg-color: #0F172A;
       --text-color: #F8FAFC;
       --card-bg: #182232;
+      --input-bg: #090D16;
+      --input-text: #F8FAFC;
+      --border-color: rgba(255, 255, 255, 0.1);
       --app-font: 'Pretendard', sans-serif;
     }
     body {
@@ -35,12 +38,21 @@
       transition: background-color 0.3s, color 0.3s;
     }
     .active-tab {
-      color: #10B981;
+      color: #10B981 !important;
       font-weight: 700;
     }
     .card-glass {
       background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+    }
+    input, select, textarea {
+      background-color: var(--input-bg) !important;
+      color: var(--input-text) !important;
+      border-color: var(--border-color) !important;
+    }
+    option {
+      background-color: #182232 !important;
+      color: #F8FAFC !important;
     }
   </style>
 </head>
@@ -64,9 +76,9 @@
     <section id="tab-dashboard" class="space-y-3.5">
       
       <!-- 조회 기간 드롭다운 선택 필터 -->
-      <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800">
-        <span class="text-xs text-slate-400 font-medium pl-1">📅 조회 기간 선택</span>
-        <select id="period-select-filter" onchange="setPeriodFilter(this.value)" class="p-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs font-bold text-emerald-400 focus:outline-none">
+      <div class="flex justify-between items-center card-glass p-2 rounded-xl">
+        <span class="text-xs opacity-70 font-medium pl-1">📅 조회 기간 선택</span>
+        <select id="period-select-filter" onchange="setPeriodFilter(this.value)" class="p-1.5 rounded-lg text-xs font-bold text-emerald-400 focus:outline-none">
           <option value="all">전체 내역 (전체 기간)</option>
           <option value="month">당월 (이번 달)</option>
           <option value="quarter">당분기 (이번 분기)</option>
@@ -76,14 +88,14 @@
 
       <!-- 자산 요약 배너 -->
       <div class="card-glass p-4 rounded-2xl space-y-2">
-        <div class="text-xs text-slate-400 font-medium">총 자산 평가액</div>
-        <div class="text-3xl font-extrabold tracking-tight text-white" id="dash-total-asset">0원</div>
+        <div class="text-xs opacity-70 font-medium">총 자산 평가액</div>
+        <div class="text-3xl font-extrabold tracking-tight" id="dash-total-asset">0원</div>
         
         <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 text-xs">
-          <div class="text-slate-300">
+          <div>
             선택 기간 순수익: <span class="font-bold text-emerald-400" id="dash-net-income">0원</span>
           </div>
-          <div class="text-slate-300">
+          <div>
             저축률: <span class="font-bold text-emerald-400" id="dash-savings-rate">0%</span>
           </div>
         </div>
@@ -92,13 +104,13 @@
       <!-- 수입/지출 카드 -->
       <div class="grid grid-cols-2 gap-3">
         <div class="card-glass p-3.5 rounded-2xl border-l-4 border-l-emerald-500">
-          <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+          <div class="text-[11px] opacity-70 mb-1 flex items-center gap-1">
             <span class="text-emerald-400">⇣</span> 기간 총수입
           </div>
           <div class="text-base font-extrabold text-emerald-400" id="dash-total-income">0원</div>
         </div>
         <div class="card-glass p-3.5 rounded-2xl border-l-4 border-l-rose-500">
-          <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+          <div class="text-[11px] opacity-70 mb-1 flex items-center gap-1">
             <span class="text-rose-400">⇡</span> 기간 총지출
           </div>
           <div class="text-base font-extrabold text-rose-400" id="dash-total-expense">0원</div>
@@ -108,10 +120,10 @@
       <!-- 차트 영역 -->
       <div class="card-glass p-4 rounded-2xl space-y-2">
         <div class="flex justify-between items-center text-xs">
-          <h3 class="font-bold text-white flex items-center gap-1.5">
+          <h3 class="font-bold flex items-center gap-1.5">
             <span class="text-teal-400">◐</span> 자산 포트폴리오
           </h3>
-          <span class="text-slate-400 text-[11px]" id="dash-asset-count">0개 항목 보유</span>
+          <span class="opacity-70 text-[11px]" id="dash-asset-count">0개 항목 보유</span>
         </div>
         <div class="relative h-44 flex justify-center items-center pt-1">
           <canvas id="assetDoughnutChart"></canvas>
@@ -120,10 +132,10 @@
 
       <div class="card-glass p-4 rounded-2xl space-y-2">
         <div class="flex justify-between items-center text-xs">
-          <h3 class="font-bold text-white flex items-center gap-1.5">
+          <h3 class="font-bold flex items-center gap-1.5">
             <span class="text-emerald-400">📊</span> 카테고리별 지출 분석
           </h3>
-          <span class="text-slate-400 text-[11px]">소비 분석</span>
+          <span class="opacity-70 text-[11px]">소비 분석</span>
         </div>
         <div class="relative h-52 pt-1">
           <canvas id="expenseBarChart"></canvas>
@@ -137,7 +149,7 @@
             <button type="button" onclick="setDashboardViewMode('list')" id="view-mode-list-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950">일별 피드</button>
             <button type="button" onclick="setDashboardViewMode('calendar')" id="view-mode-cal-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">📆 달력 뷰</button>
           </div>
-          <span class="text-[10px] text-slate-400" id="tx-page-info">1 / 1 페이지</span>
+          <span class="text-[10px] opacity-70" id="tx-page-info">1 / 1 페이지</span>
         </div>
         
         <!-- 1) 피드 리스트 뷰 -->
@@ -145,7 +157,7 @@
           <div id="recent-expense-list" class="space-y-3"></div>
           <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
             <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
-            <span class="text-[11px] text-slate-400" id="tx-total-count">총 0건</span>
+            <span class="text-[11px] opacity-70" id="tx-total-count">총 0건</span>
             <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
           </div>
         </div>
@@ -158,7 +170,7 @@
             <button onclick="changeCalMonth(1)" class="px-2 py-1 bg-slate-800 rounded border border-slate-700">다음달 ▶</button>
           </div>
           
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-400 font-bold border-b border-slate-800 pb-1">
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] opacity-70 font-bold border-b border-slate-800 pb-1">
             <span class="text-rose-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-sky-400">토</span>
           </div>
           
@@ -176,52 +188,52 @@
 
       <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
         <div class="text-xs text-emerald-300 font-semibold">⚡ 결제 문자/알림톡 복사 붙여넣기</div>
-        <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 복사해서 여기에 붙여넣으세요" class="w-full text-xs p-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-400"></textarea>
+        <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 복사해서 여기에 붙여넣으세요" class="w-full text-xs p-2 rounded-lg focus:outline-none focus:border-emerald-400"></textarea>
         <button type="button" onclick="parseSMS()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-xs transition">문자 파싱 및 자동 입력</button>
       </div>
 
       <form id="expense-form" class="space-y-3" onsubmit="addTransaction(event)">
         <div>
           <label class="text-xs opacity-70">날짜</label>
-          <input type="date" id="in-date" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
+          <input type="date" id="in-date" required class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs opacity-70">구분</label>
-            <select id="in-type" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
+            <select id="in-type" class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400">
               <option value="지출">지출</option>
               <option value="수입">수입</option>
             </select>
           </div>
           <div>
             <label class="text-xs opacity-70">사용자</label>
-            <select id="in-user" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
+            <select id="in-user" class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400"></select>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs opacity-70">카테고리</label>
-            <select id="in-category" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
+            <select id="in-category" class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400"></select>
           </div>
           <div>
             <label class="text-xs opacity-70">결제수단</label>
-            <select id="in-paymethod" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
+            <select id="in-paymethod" class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400"></select>
           </div>
         </div>
         <div>
           <label class="text-xs opacity-70">내용 / 항목명</label>
-          <input type="text" id="in-item" placeholder="예: 이마트 장보기" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
+          <input type="text" id="in-item" placeholder="예: 이마트 장보기" required class="w-full mt-1 p-2 border rounded-xl text-xs focus:outline-none focus:border-emerald-400">
         </div>
         <div>
           <label class="text-xs opacity-70">금액 (원)</label>
-          <input type="number" id="in-amount" placeholder="0" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-400">
+          <input type="number" id="in-amount" placeholder="0" required class="w-full mt-1 p-2 border rounded-xl text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-400">
         </div>
         <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl text-xs shadow-lg transition">저장하기</button>
       </form>
     </section>
 
-    <!-- 3. 이시안(자녀용) 가계부 탭 -->
-    <section id="tab-child" class="hidden space-y-4">
+    <!-- 3. 이시안(자녀용) 탭 -->
+    <section id="tab-child" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <h2 class="text-base font-bold text-sky-400 flex items-center gap-1.5">
@@ -231,33 +243,33 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2 pt-1">
-          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div class="text-[10px] text-slate-400">용돈 총 입금</div>
+          <div class="card-glass p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] opacity-70">용돈 총 입금</div>
             <div class="text-sm font-bold text-emerald-400" id="child-total-income">0원</div>
           </div>
-          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div class="text-[10px] text-slate-400">용돈 총 지출</div>
+          <div class="card-glass p-3 rounded-xl border border-slate-800">
+            <div class="text-[10px] opacity-70">용돈 총 지출</div>
             <div class="text-sm font-bold text-rose-400" id="child-total-expense">0원</div>
           </div>
         </div>
 
-        <form onsubmit="addChildTransaction(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+        <form onsubmit="addChildTransaction(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
           <div class="grid grid-cols-2 gap-2">
-            <input type="date" id="child-in-date" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-            <select id="child-in-type" class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="date" id="child-in-date" required class="p-2 border rounded-lg text-xs">
+            <select id="child-in-type" class="p-2 border rounded-lg text-xs">
               <option value="지출">이시안 지출</option>
               <option value="수입">용돈 지급 (수입)</option>
             </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 준비물)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-            <input type="number" id="child-in-amount" placeholder="금액 (원)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 준비물)" required class="p-2 border rounded-lg text-xs">
+            <input type="number" id="child-in-amount" placeholder="금액 (원)" required class="p-2 border rounded-lg text-xs">
           </div>
           <button type="submit" class="w-full py-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-lg text-xs transition">저장하기</button>
         </form>
 
         <div class="pt-2">
-          <h3 class="text-xs font-bold text-slate-300 mb-2">이시안 최근 용돈/지출 내역</h3>
+          <h3 class="text-xs font-bold opacity-80 mb-2">이시안 최근 용돈/지출 내역</h3>
           <div id="child-transaction-list" class="space-y-2 text-xs"></div>
         </div>
       </div>
@@ -269,18 +281,18 @@
         <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
           <span>🏦</span> 자산 보유 현황
         </h2>
-        <form onsubmit="addAsset(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+        <form onsubmit="addAsset(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
           <div class="grid grid-cols-2 gap-2">
-            <select id="asset-type" class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <select id="asset-type" class="p-2 border rounded-lg text-xs">
               <option value="예금">예금 (현금성)</option>
               <option value="적금">적금 (목돈)</option>
               <option value="주식">주식 (투자)</option>
               <option value="기타_부동산">기타/부동산</option>
             </select>
-            <input type="text" id="asset-name" placeholder="자산명 (예: 청약)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="text" id="asset-name" placeholder="자산명 (예: 청약)" required class="p-2 border rounded-lg text-xs">
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="asset-amount" placeholder="평가액/잔액" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="number" id="asset-amount" placeholder="평가액/잔액" required class="p-2 border rounded-lg text-xs">
             <button type="submit" class="bg-teal-500 text-slate-950 font-bold rounded-lg text-xs">자산 추가</button>
           </div>
         </form>
@@ -296,7 +308,7 @@
         </h2>
         <div class="flex items-center space-x-1">
           <span class="text-[10px] opacity-70">위험 기준:</span>
-          <input type="number" id="budget-warn-threshold" value="80" min="1" max="100" onchange="updateWarnThreshold(this.value)" class="w-10 p-0.5 text-center text-xs bg-slate-950 border border-slate-800 rounded text-emerald-400 font-bold">
+          <input type="number" id="budget-warn-threshold" value="80" min="1" max="100" onchange="updateWarnThreshold(this.value)" class="w-10 p-0.5 text-center text-xs border rounded text-emerald-400 font-bold">
           <span class="text-[10px] opacity-70">%</span>
         </div>
       </div>
@@ -313,14 +325,14 @@
       <div class="space-y-1.5">
         <label class="text-xs font-bold opacity-80">가계부 이름 변경</label>
         <div class="flex gap-2">
-          <input type="text" id="setting-title-input" placeholder="이사가자 시안아!" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="setting-title-input" placeholder="이사가자 시안아!" class="flex-1 p-2 border rounded-lg text-xs">
           <button type="button" onclick="updateAppTitle()" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">변경</button>
         </div>
       </div>
 
-      <!-- 🎨 테마 고르기 -->
-      <div class="space-y-2 border-t border-slate-800 pt-3">
-        <h3 class="text-xs font-bold opacity-80">🎨 테마 모드 선택</h3>
+      <!-- 🎨 테마 모드 & 색상 커스텀 설정 -->
+      <div class="space-y-3 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">🎨 앱 테마 및 색상 설정</h3>
         <div class="grid grid-cols-2 gap-2">
           <button type="button" onclick="setPresetTheme('dark')" class="py-2 bg-slate-900 border border-slate-700 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
             <span>🌙</span> 어두운 테마
@@ -329,13 +341,30 @@
             <span>☀️</span> 밝은 테마
           </button>
         </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div>
+            <label class="text-[10px] opacity-70 block mb-1">배경 커스텀 색상</label>
+            <input type="color" id="bg-color-picker" value="#0F172A" onchange="changeThemeColor('bgColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
+          </div>
+          <div>
+            <label class="text-[10px] opacity-70 block mb-1">글자 커스텀 색상</label>
+            <input type="color" id="text-color-picker" value="#F8FAFC" onchange="changeThemeColor('textColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
+          </div>
+        </div>
+      </div>
+
+      <!-- 📌 하단 네비게이션 탭 순서 설정 -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">📌 하단 네비게이션 탭 순서 조정</h3>
+        <div id="nav-order-list" class="space-y-1.5 text-xs"></div>
       </div>
 
       <!-- 👤 사용자 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">👤 사용자 (구성원) 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내, 시안)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내, 시안)" class="flex-1 p-2 border rounded-lg text-xs">
           <button type="button" onclick="addConfigItem('users', 'new-user-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-user-tags" class="flex flex-wrap gap-1"></div>
@@ -345,7 +374,7 @@
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">💳 결제 수단 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-pay-input" placeholder="새 결제 수단 (예: 카카오페이)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="new-pay-input" placeholder="새 결제 수단 (예: 카카오페이)" class="flex-1 p-2 border rounded-lg text-xs">
           <button type="button" onclick="addConfigItem('payMethods', 'new-pay-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-pay-tags" class="flex flex-wrap gap-1"></div>
@@ -355,10 +384,30 @@
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">🏷️ 카테고리 항목 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 border rounded-lg text-xs">
           <button type="button" onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
+      </div>
+
+      <!-- 🔄 월별 고정지출/자동이체 -->
+      <div class="space-y-3 border-t border-slate-800 pt-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold text-amber-400">🔄 월별 고정지출 / 자동이체 관리</h3>
+          <button type="button" onclick="applyMonthlyRecurring()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-lg">⚡ 이번 달 반영</button>
+        </div>
+        <form onsubmit="addRecurringItem(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="rec-day" min="1" max="31" placeholder="매월 이체일(1~31일)" required class="p-2 border rounded-lg text-xs">
+            <select id="rec-category" class="p-2 border rounded-lg text-xs"></select>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="rec-item" placeholder="항목명 (예: 월세, 관리비)" required class="p-2 border rounded-lg text-xs">
+            <input type="number" id="rec-amount" placeholder="금액 (원)" required class="p-2 border rounded-lg text-xs">
+          </div>
+          <button type="submit" class="w-full py-1.5 bg-slate-800 text-slate-200 font-bold rounded-lg text-xs border border-slate-700">고정 지출 등록</button>
+        </form>
+        <div id="recurring-list" class="space-y-2 text-xs"></div>
       </div>
 
       <!-- 백업 및 초기화 -->
@@ -379,39 +428,39 @@
       <h3 class="text-base font-bold text-emerald-400">✏️ 거래 내역 수정</h3>
       <input type="hidden" id="edit-tx-id">
       <div>
-        <label class="text-[11px] text-slate-400">날짜</label>
-        <input type="date" id="edit-date" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+        <label class="text-[11px] opacity-70">날짜</label>
+        <input type="date" id="edit-date" class="w-full mt-1 p-2 border rounded-xl text-xs">
       </div>
       <div class="grid grid-cols-2 gap-2">
         <div>
-          <label class="text-[11px] text-slate-400">구분</label>
-          <select id="edit-type" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+          <label class="text-[11px] opacity-70">구분</label>
+          <select id="edit-type" class="w-full mt-1 p-2 border rounded-xl text-xs">
             <option value="지출">지출</option>
             <option value="수입">수입</option>
           </select>
         </div>
         <div>
-          <label class="text-[11px] text-slate-400">사용자</label>
-          <select id="edit-user" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs"></select>
+          <label class="text-[11px] opacity-70">사용자</label>
+          <select id="edit-user" class="w-full mt-1 p-2 border rounded-xl text-xs"></select>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-2">
         <div>
-          <label class="text-[11px] text-slate-400">카테고리</label>
-          <select id="edit-category" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs"></select>
+          <label class="text-[11px] opacity-70">카테고리</label>
+          <select id="edit-category" class="w-full mt-1 p-2 border rounded-xl text-xs"></select>
         </div>
         <div>
-          <label class="text-[11px] text-slate-400">결제수단</label>
-          <select id="edit-paymethod" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs"></select>
+          <label class="text-[11px] opacity-70">결제수단</label>
+          <select id="edit-paymethod" class="w-full mt-1 p-2 border rounded-xl text-xs"></select>
         </div>
       </div>
       <div>
-        <label class="text-[11px] text-slate-400">내용</label>
-        <input type="text" id="edit-item" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+        <label class="text-[11px] opacity-70">내용</label>
+        <input type="text" id="edit-item" class="w-full mt-1 p-2 border rounded-xl text-xs">
       </div>
       <div>
-        <label class="text-[11px] text-slate-400">금액(원)</label>
-        <input type="number" id="edit-amount" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs font-bold text-emerald-400">
+        <label class="text-[11px] opacity-70">금액(원)</label>
+        <input type="number" id="edit-amount" class="w-full mt-1 p-2 border rounded-xl text-xs font-bold text-emerald-400">
       </div>
       <div class="flex gap-2 pt-2">
         <button type="button" onclick="closeEditModal()" class="flex-1 py-2 bg-slate-800 text-xs rounded-xl">취소</button>
@@ -420,45 +469,20 @@
     </div>
   </div>
 
-  <!-- 달력 날짜 클릭 시 세부 내역 팝업 모달 -->
+  <!-- 달력 상세 팝업 -->
   <div id="day-detail-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3 max-h-[80vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
         <h3 class="text-sm font-bold text-amber-400" id="day-detail-title">2026-10-04 내역</h3>
-        <button onclick="closeDayDetailModal()" class="text-xs text-slate-400">✕ 닫기</button>
+        <button onclick="closeDayDetailModal()" class="text-xs opacity-70">✕ 닫기</button>
       </div>
       <div id="day-detail-list" class="space-y-2 text-xs"></div>
     </div>
   </div>
 
-  <!-- 하단 고정 네비게이션 바 -->
+  <!-- 하단 네비게이션 바 -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
-    <div class="flex justify-around items-center h-14 text-[10px] opacity-90">
-      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-0.5 active-tab">
-        <span class="text-base">📊</span>
-        <span>대시보드</span>
-      </button>
-      <button onclick="switchTab('input')" id="nav-input" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">📝</span>
-        <span>지출입력</span>
-      </button>
-      <button onclick="switchTab('child')" id="nav-child" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">👶</span>
-        <span>이시안</span>
-      </button>
-      <button onclick="switchTab('asset')" id="nav-asset" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">🏦</span>
-        <span>자산현황</span>
-      </button>
-      <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">🎯</span>
-        <span>예산관리</span>
-      </button>
-      <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">⚙️</span>
-        <span>설정</span>
-      </button>
-    </div>
+    <div class="flex justify-around items-center h-14 text-[10px] opacity-80" id="dynamic-nav-bar"></div>
   </nav>
 
   <!-- JS 및 파이어베이스 연동 로직 -->
@@ -488,49 +512,62 @@
       return (key || "").replace(/[\/\.#\$\[\]]/g, "_");
     }
 
-    // 기본 초기 데이터 (유실 방지용 기본 세팅)
-    const defaultData = {
-      title: "이사가자 시안아!",
-      theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
-      budgetWarnThreshold: 80,
-      transactions: [],
-      childTransactions: [],
-      recurring: [],
-      assets: [
-        { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
-        { type: '적금', name: '청약저축', amount: 6000000 },
-        { type: '주식', name: '삼성전자', amount: 8000000 },
-        { type: '기타_부동산', name: '전세보증금', amount: 180500000 }
-      ],
-      config: {
-        categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
-        users: ["남편", "아내", "공동"],
-        payMethods: ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"],
-        budgets: { "식비": 600000, "주거_공과금": 500000, "교통_차량": 300000, "육아_교육": 600000 }
-      }
-    };
-
-    let appData = JSON.parse(JSON.stringify(defaultData));
+    function getInitialDefaultData() {
+      return {
+        title: "이사가자 시안아!",
+        theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
+        budgetWarnThreshold: 80,
+        transactions: [],
+        childTransactions: [],
+        recurring: [],
+        assets: [
+          { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
+          { type: '적금', name: '청약저축', amount: 6000000 },
+          { type: '주식', name: '삼성전자', amount: 8000000 },
+          { type: '기타_부동산', name: '전세보증금', amount: 180500000 }
+        ],
+        config: {
+          categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
+          users: ["남편", "아내", "공동"],
+          payMethods: ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"],
+          navOrder: ["dashboard", "input", "child", "asset", "budget", "settings"],
+          budgets: { "식비": 600000, "주거_공과금": 500000, "교통_차량": 300000, "육아_교육": 600000 }
+        }
+      };
+    }
 
     function sanitizeAppData(data) {
-      if (!data) return defaultData;
+      if (!data) return getInitialDefaultData();
       const clean = JSON.parse(JSON.stringify(data));
 
       if (!clean.assets || clean.assets.length === 0) {
-        clean.assets = defaultData.assets;
+        clean.assets = getInitialDefaultData().assets;
       }
-      if (!clean.config) clean.config = defaultData.config;
-      if (!clean.config.categories || clean.config.categories.length === 0) clean.config.categories = defaultData.config.categories;
-      if (!clean.config.users || clean.config.users.length === 0) clean.config.users = defaultData.config.users;
-      if (!clean.config.payMethods || clean.config.payMethods.length === 0) clean.config.payMethods = defaultData.config.payMethods;
-
-      clean.config.categories = clean.config.categories.map(c => sanitizeKey(c));
+      if (!clean.config) {
+        clean.config = getInitialDefaultData().config;
+      } else {
+        if (!clean.config.categories || clean.config.categories.length === 0) {
+          clean.config.categories = getInitialDefaultData().config.categories;
+        } else {
+          clean.config.categories = clean.config.categories.map(c => sanitizeKey(c));
+        }
+        if (!clean.config.users || clean.config.users.length === 0) {
+          clean.config.users = ["남편", "아내", "공동"];
+        }
+        if (!clean.config.payMethods || clean.config.payMethods.length === 0) {
+          clean.config.payMethods = ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"];
+        }
+        if (!clean.config.navOrder || clean.config.navOrder.length === 0) {
+          clean.config.navOrder = ["dashboard", "input", "child", "asset", "budget", "settings"];
+        }
+      }
+      if (!clean.transactions) clean.transactions = [];
       if (!clean.childTransactions) clean.childTransactions = [];
       if (!clean.recurring) clean.recurring = [];
-      if (!clean.transactions) clean.transactions = [];
-
       return clean;
     }
+
+    let appData = getInitialDefaultData();
 
     let currentPeriodFilter = 'all';
     let dashViewMode = 'list';
@@ -542,6 +579,15 @@
 
     let doughnutChart = null;
     let barChart = null;
+
+    const navMeta = {
+      dashboard: { icon: "📊", label: "대시보드" },
+      input: { icon: "📝", label: "지출입력" },
+      child: { icon: "👶", label: "이시안" },
+      asset: { icon: "🏦", label: "자산현황" },
+      budget: { icon: "🎯", label: "예산관리" },
+      settings: { icon: "⚙️", label: "설정" }
+    };
 
     window.onload = function() {
       loadLocalStorage();
@@ -570,6 +616,7 @@
 
     function refreshAllUI() {
       applyThemeAndTitle();
+      renderNavBar();
       renderDropdowns();
       renderDashboard();
       renderChildTab();
@@ -610,9 +657,19 @@
       document.getElementById('setting-title-input').value = appData.title || "이사가자 시안아!";
 
       const theme = appData.theme || { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
+      
+      const isLight = (theme.bgColor === '#FFFFFF');
+      const cardBg = isLight ? '#FFFFFF' : '#182232';
+      const inputBg = isLight ? '#F1F5F9' : '#090D16';
+      const inputTextColor = isLight ? '#0F172A' : '#F8FAFC';
+      const borderColor = isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.1)';
+
       document.documentElement.style.setProperty('--bg-color', theme.bgColor);
       document.documentElement.style.setProperty('--text-color', theme.textColor);
-      document.documentElement.style.setProperty('--card-bg', theme.bgColor === '#FFFFFF' ? '#F1F5F9' : '#182232');
+      document.documentElement.style.setProperty('--card-bg', cardBg);
+      document.documentElement.style.setProperty('--input-bg', inputBg);
+      document.documentElement.style.setProperty('--input-text', inputTextColor);
+      document.documentElement.style.setProperty('--border-color', borderColor);
       document.documentElement.style.setProperty('--app-font', theme.font || "'Pretendard', sans-serif");
       
       document.getElementById('bg-color-picker').value = theme.bgColor;
@@ -669,6 +726,40 @@
       refreshAllUI();
     }
 
+    function renderNavBar() {
+      const order = (appData.config && appData.config.navOrder && appData.config.navOrder.length > 0) ? appData.config.navOrder : ["dashboard", "input", "child", "asset", "budget", "settings"];
+      const navEl = document.getElementById('dynamic-nav-bar');
+      navEl.innerHTML = order.map(k => {
+        const meta = navMeta[k];
+        if (!meta) return '';
+        return `
+          <button onclick="switchTab('${k}')" id="nav-${k}" class="flex flex-col items-center space-y-0.5">
+            <span class="text-base">${meta.icon}</span>
+            <span>${meta.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      const currentActive = document.querySelector('.active-tab');
+      if (!currentActive) {
+        const dashBtn = document.getElementById('nav-dashboard');
+        if (dashBtn) dashBtn.classList.add('active-tab');
+      }
+    }
+
+    function moveNavItem(idx, direction) {
+      const order = appData.config.navOrder;
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= order.length) return;
+
+      const temp = order[idx];
+      order[idx] = order[targetIdx];
+      order[targetIdx] = temp;
+
+      saveDatabase();
+      renderSettings();
+    }
+
     function getFilteredTransactions() {
       const txs = appData.transactions || [];
       if (currentPeriodFilter === 'all') return txs;
@@ -713,7 +804,7 @@
     }
 
     function renderDropdowns() {
-      if (!appData.config) appData.config = defaultData.config;
+      if (!appData.config) appData.config = { categories: [], users: [], payMethods: [] };
       const usersHtml = (appData.config.users || []).map(u => `<option value="${u}">${u}</option>`).join('');
       const catsHtml = (appData.config.categories || []).map(c => `<option value="${c}">${c.replace(/_/g, '/')}</option>`).join('');
       const paysHtml = (appData.config.payMethods || []).map(p => `<option value="${p}">${p}</option>`).join('');
@@ -725,6 +816,10 @@
       document.getElementById('edit-user').innerHTML = usersHtml;
       document.getElementById('edit-category').innerHTML = catsHtml;
       document.getElementById('edit-paymethod').innerHTML = paysHtml;
+
+      if (document.getElementById('rec-category')) {
+        document.getElementById('rec-category').innerHTML = catsHtml;
+      }
     }
 
     function addTransaction(e) {
@@ -793,13 +888,13 @@
 
       const listEl = document.getElementById('child-transaction-list');
       if (childTxs.length === 0) {
-        listEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-2">등록된 내역이 없습니다.</div>';
+        listEl.innerHTML = '<div class="text-[10px] opacity-50 text-center py-2">등록된 내역이 없습니다.</div>';
       } else {
         listEl.innerHTML = childTxs.map(t => `
-          <div class="flex justify-between items-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center card-glass p-2.5 rounded-xl border">
             <div>
-              <div class="font-bold text-slate-200">${t.item}</div>
-              <div class="text-[10px] text-slate-500">${t.date}</div>
+              <div class="font-bold">${t.item}</div>
+              <div class="text-[10px] opacity-60">${t.date}</div>
             </div>
             <div class="flex items-center space-x-2">
               <span class="font-bold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
@@ -874,13 +969,78 @@
       }
     }
 
+    function addRecurringItem(e) {
+      e.preventDefault();
+      if (!appData.recurring) appData.recurring = [];
+
+      const item = {
+        id: Date.now(),
+        day: parseInt(document.getElementById('rec-day').value) || 1,
+        category: sanitizeKey(document.getElementById('rec-category').value),
+        item: document.getElementById('rec-item').value,
+        amount: parseInt(document.getElementById('rec-amount').value) || 0
+      };
+
+      appData.recurring.push(item);
+      saveDatabase();
+      renderSettings();
+
+      document.getElementById('rec-item').value = '';
+      document.getElementById('rec-amount').value = '';
+    }
+
+    function removeRecurringItem(id) {
+      if (confirm("이 고정 지출 항목을 삭제하시겠습니까?")) {
+        appData.recurring = (appData.recurring || []).filter(r => r.id !== id);
+        saveDatabase();
+        renderSettings();
+      }
+    }
+
+    function applyMonthlyRecurring() {
+      const recurrings = appData.recurring || [];
+      if (recurrings.length === 0) {
+        alert("등록된 고정 지출/자동이체 항목이 없습니다. 아래에서 먼저 추가해 주세요!");
+        return;
+      }
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+
+      let addedCount = 0;
+      if (!appData.transactions) appData.transactions = [];
+
+      recurrings.forEach(r => {
+        const dayStr = String(Math.min(r.day, 28)).padStart(2, '0');
+        const targetDate = `${year}-${month}-${dayStr}`;
+
+        const tx = {
+          id: Date.now() + Math.floor(Math.random() * 1000),
+          date: targetDate,
+          type: "지출",
+          user: (appData.config.users && appData.config.users[0]) ? appData.config.users[0] : "공동",
+          category: r.category,
+          payMethod: "자동이체",
+          item: `[자동이체] ${r.item}`,
+          amount: r.amount
+        };
+
+        appData.transactions.unshift(tx);
+        addedCount++;
+      });
+
+      saveDatabase();
+      alert(`이번 달 자동이체 지출 ${addedCount}건이 일괄 반영되었습니다!`);
+    }
+
     function getKoreanDateHeader(dateStr) {
       if (!dateStr) return "";
       const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
       const d = new Date(dateStr);
       const dayNum = String(d.getDate()).padStart(2, '0');
       const dayName = days[d.getDay()];
-      return `<span class="font-extrabold text-sm text-white">${dayNum}</span> <span class="text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded ml-1">${dayName}</span> <span class="text-[9px] text-slate-500 ml-1">${dateStr.replace(/-/g, '.')}</span>`;
+      return `<span class="font-extrabold text-sm">${dayNum}</span> <span class="text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded ml-1">${dayName}</span> <span class="text-[9px] opacity-60 ml-1">${dateStr.replace(/-/g, '.')}</span>`;
     }
 
     function setDashboardViewMode(mode) {
@@ -917,7 +1077,7 @@
       const txs = appData.transactions || [];
 
       for (let i = 0; i < firstDay; i++) {
-        gridEl.innerHTML += `<div class="p-1 min-h-[50px] bg-slate-950/20 rounded"></div>`;
+        gridEl.innerHTML += `<div class="p-1 min-h-[50px] opacity-20 rounded"></div>`;
       }
 
       for (let day = 1; day <= lastDate; day++) {
@@ -928,8 +1088,8 @@
         const dayExpense = dayTxs.filter(t => t.type === '지출').reduce((s, t) => s + t.amount, 0);
 
         gridEl.innerHTML += `
-          <div onclick="openDayDetailModal('${dayStr}')" class="p-1 min-h-[52px] bg-slate-900/80 hover:bg-slate-800 border border-slate-800/80 rounded cursor-pointer flex flex-col justify-between transition">
-            <div class="font-bold text-[10px] text-slate-300">${day}</div>
+          <div onclick="openDayDetailModal('${dayStr}')" class="p-1 min-h-[52px] card-glass hover:opacity-80 rounded cursor-pointer flex flex-col justify-between transition">
+            <div class="font-bold text-[10px]">${day}</div>
             <div class="space-y-0.5 text-[8px] text-right">
               ${dayIncome > 0 ? `<div class="text-emerald-400 font-bold">+${Math.round(dayIncome/1000)}k</div>` : ''}
               ${dayExpense > 0 ? `<div class="text-rose-400 font-bold">-${Math.round(dayExpense/1000)}k</div>` : ''}
@@ -945,13 +1105,13 @@
 
       const listEl = document.getElementById('day-detail-list');
       if (dayTxs.length === 0) {
-        listEl.innerHTML = '<div class="text-slate-500 text-center py-4">이 날짜의 거래 내역이 없습니다.</div>';
+        listEl.innerHTML = '<div class="opacity-50 text-center py-4">이 날짜의 거래 내역이 없습니다.</div>';
       } else {
         listEl.innerHTML = dayTxs.map(t => `
-          <div class="flex justify-between items-center bg-slate-950/80 p-2 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border">
             <div>
-              <div class="font-bold text-slate-200">${t.item} <span class="text-[9px] opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
-              <div class="text-[9px] text-slate-400">${t.user} · ${t.payMethod}</div>
+              <div class="font-bold">${t.item} <span class="text-[9px] opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
+              <div class="text-[9px] opacity-60">${t.user} · ${t.payMethod}</div>
             </div>
             <div class="flex items-center space-x-1.5">
               <span class="font-bold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
@@ -972,7 +1132,7 @@
     }
 
     function renderDashboard() {
-      const assets = appData.assets || defaultData.assets;
+      const assets = appData.assets || [];
       const filteredTxs = getFilteredTransactions();
 
       const totalAsset = assets.reduce((sum, a) => sum + (parseInt(a.amount)||0), 0);
@@ -1003,7 +1163,7 @@
 
       const listEl = document.getElementById('recent-expense-list');
       if (pageTxs.length === 0) {
-        listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-3">등록된 거래 내역이 없습니다. [📝 지출입력] 탭에서 추가해 주세요.</div>';
+        listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-3">해당 기간의 거래 내역이 없습니다.</div>';
       } else {
         const grouped = {};
         pageTxs.forEach(t => {
@@ -1019,7 +1179,7 @@
 
           html += `
             <div class="space-y-1.5 pt-1">
-              <div class="flex justify-between items-center bg-slate-900/90 px-3 py-1.5 rounded-lg border-l-2 border-l-amber-400">
+              <div class="flex justify-between items-center card-glass px-3 py-1.5 rounded-lg border-l-2 border-l-amber-400">
                 <div class="flex items-center">
                   ${getKoreanDateHeader(dateKey)}
                 </div>
@@ -1031,10 +1191,10 @@
 
               <div class="space-y-1.5 pl-1">
                 ${dayItems.map(t => `
-                  <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                  <div class="flex justify-between items-center card-glass p-2.5 rounded-xl border">
                     <div>
-                      <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
-                      <div class="text-[10px] text-slate-400">${t.user} ·${t.payMethod}</div>
+                      <div class="font-bold">${t.item} <span class="text-[10px] font-normal opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
+                      <div class="text-[10px] opacity-60">${t.user} ·${t.payMethod}</div>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="font-extrabold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
@@ -1116,7 +1276,7 @@
     }
 
     function getAssetChartData() {
-      const assets = appData.assets || defaultData.assets;
+      const assets = appData.assets || [];
       const types = ['예금', '적금', '주식', '기타_부동산'];
       const amounts = types.map(t => assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + (parseInt(a.amount)||0), 0));
       return {
@@ -1131,7 +1291,7 @@
 
     function getExpenseChartData() {
       const txs = getFilteredTransactions();
-      const cats = (appData.config && appData.config.categories) ? appData.config.categories.slice(0, 4) : defaultData.config.categories.slice(0, 4);
+      const cats = (appData.config && appData.config.categories) ? appData.config.categories.slice(0, 4) : [];
       const amounts = cats.map(c => txs.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + (parseInt(t.amount)||0), 0));
       return {
         labels: cats.map(c => c.replace(/_/g, '/')),
@@ -1146,12 +1306,12 @@
     }
 
     function renderAssetList() {
-      const assets = appData.assets || defaultData.assets;
+      const assets = appData.assets || [];
       document.getElementById('asset-list').innerHTML = assets.map((a, idx) => `
-        <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+        <div class="flex justify-between items-center card-glass p-2 rounded-xl border">
           <div>
             <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${(a.type||"").replace(/_/g, '/')}</span>
-            <span class="font-bold ml-1 text-slate-200">${a.name}</span>
+            <span class="font-bold ml-1">${a.name}</span>
           </div>
           <div class="flex items-center space-x-2">
             <span class="font-bold text-emerald-400">${parseInt(a.amount||0).toLocaleString()}원</span>
@@ -1183,8 +1343,8 @@
       const el = document.getElementById('budget-progress-list');
       const threshold = appData.budgetWarnThreshold || 80;
       const txs = getFilteredTransactions();
-      const cats = (appData.config && appData.config.categories) ? appData.config.categories : defaultData.config.categories;
-      const budgets = (appData.config && appData.config.budgets) ? appData.config.budgets : defaultData.config.budgets;
+      const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
+      const budgets = (appData.config && appData.config.budgets) ? appData.config.budgets : {};
 
       el.innerHTML = cats.map(c => {
         const target = budgets[c] || 300000;
@@ -1196,9 +1356,9 @@
         const barColor = isWarning ? 'bg-rose-500' : 'bg-emerald-500';
 
         return `
-          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+          <div class="card-glass p-2.5 rounded-xl space-y-1.5">
             <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="font-bold text-xs text-slate-200">${c.replace(/_/g, '/')}</span>
+              <span class="font-bold text-xs">${c.replace(/_/g, '/')}</span>
               <div class="flex items-center space-x-1.5">
                 <span class="${isWarning ? 'text-rose-400 font-extrabold' : 'text-emerald-400'}">${spent.toLocaleString()} / ${target.toLocaleString()}원 (${rawPct}%)</span>
                 <button type="button" onclick="updateBudgetTarget('${c}')" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">변경</button>
@@ -1228,6 +1388,21 @@
       const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
       const users = (appData.config && appData.config.users) ? appData.config.users : [];
       const pays = (appData.config && appData.config.payMethods) ? appData.config.payMethods : [];
+      const recurrings = appData.recurring || [];
+      const navOrder = (appData.config && appData.config.navOrder) ? appData.config.navOrder : ["dashboard", "input", "child", "asset", "budget", "settings"];
+
+      document.getElementById('nav-order-list').innerHTML = navOrder.map((k, idx) => {
+        const meta = navMeta[k];
+        return `
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800">
+            <span class="font-bold">${meta.icon} ${meta.label}</span>
+            <div class="flex space-x-1">
+              <button type="button" onclick="moveNavItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▲ 위로</button>
+              <button type="button" onclick="moveNavItem(${idx}, 1)" ${idx === navOrder.length - 1 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▼ 아래로</button>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
@@ -1246,6 +1421,25 @@
           ${p} <button type="button" onclick="removeConfigItem('payMethods', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
+
+      const recListEl = document.getElementById('recurring-list');
+      if (recurrings.length === 0) {
+        recListEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-1">등록된 고정 지출이 없습니다.</div>';
+      } else {
+        recListEl.innerHTML = recurrings.map(r => `
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800 text-xs">
+            <div>
+              <span class="font-bold text-amber-400">매월 ${r.day}일</span>
+              <span class="ml-1.5">${r.item}</span>
+              <span class="text-[10px] opacity-60 block">${(r.category||"").replace(/_/g, '/')}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold">${r.amount.toLocaleString()}원</span>
+              <button type="button" onclick="removeRecurringItem(${r.id})" class="text-xs text-rose-500 font-bold">✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
     }
 
     function addConfigItem(type, inputId) {
