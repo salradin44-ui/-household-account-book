@@ -159,7 +159,7 @@
           <span class="text-[10px] opacity-70" id="tx-page-info">1 / 1 페이지</span>
         </div>
 
-        <!-- 1) 달력 뷰 (Calendar View - 메인 기본) -->
+        <!-- 1) 달력 뷰 (Calendar View) -->
         <div id="dash-view-calendar" class="space-y-3">
           <div class="flex justify-between items-center text-xs">
             <button onclick="changeCalMonth(-1)" class="px-2 py-1 bg-slate-800 text-slate-200 rounded border border-slate-700">◀ 이전달</button>
@@ -400,7 +400,7 @@
         <div id="setting-pay-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 🏷️ 카테고리 관리 -->
+      <!-- 🏷️️ 카테고리 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">🏷️ 메인 카테고리 항목 관리</h3>
         <div class="flex gap-2">
@@ -430,13 +430,15 @@
         <div id="recurring-list" class="space-y-2 text-xs"></div>
       </div>
 
-      <!-- 백업 및 초기화 -->
+      <!-- 📂 데이터 백업 및 복원 기능 추가! -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
-        <h3 class="text-xs font-bold opacity-80">데이터 백업 및 초기화</h3>
+        <h3 class="text-xs font-bold opacity-80">데이터 백업, 복원 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
           <button type="button" onclick="exportData()" class="py-1.5 bg-slate-800 text-xs rounded border border-slate-700">백업 다운로드</button>
-          <button type="button" onclick="resetData()" class="py-1.5 bg-rose-950 text-rose-400 text-xs rounded border border-rose-900">전체 초기화</button>
+          <button type="button" onclick="document.getElementById('import-file-input').click()" class="py-1.5 bg-emerald-950 text-emerald-400 text-xs rounded border border-emerald-900 font-bold">📂 백업 파일 복원</button>
+          <input type="file" id="import-file-input" accept=".json" onchange="importData(event)" class="hidden">
         </div>
+        <button type="button" onclick="resetData()" class="w-full py-1.5 bg-rose-950 text-rose-400 text-xs rounded border border-rose-900">전체 데이터 초기화</button>
       </div>
     </section>
 
@@ -594,7 +596,7 @@
     let appData = getInitialDefaultData();
 
     let currentPeriodFilter = 'all';
-    let dashViewMode = 'calendar'; // 달력 뷰 기본 설정
+    let dashViewMode = 'calendar';
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth() + 1;
 
@@ -1100,7 +1102,6 @@
       renderCalendarView();
     }
 
-    // 원화 금액 전체 표기로 달력 축약 '1k' 보정
     function renderCalendarView() {
       document.getElementById('cal-month-title').innerText = `${calYear}년 ${calMonth}월`;
       const gridEl = document.getElementById('calendar-grid');
@@ -1430,7 +1431,7 @@
       document.getElementById('nav-order-list').innerHTML = navOrder.map((k, idx) => {
         const meta = navMeta[k];
         return `
-          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border">
             <span class="font-bold">${meta.icon} ${meta.label}</span>
             <div class="flex space-x-1">
               <button type="button" onclick="moveNavItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▲ 위로</button>
@@ -1440,28 +1441,24 @@
         `;
       }).join('');
 
-      // 이시안 전용 카테고리 태그
       document.getElementById('setting-child-cat-tags').innerHTML = childCats.map((c, i) => `
         <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
           ${c} <button type="button" onclick="removeConfigItem('childCategories', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
-      // 메인 카테고리 태그
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
         <span class="text-xs theme-tag px-2 py-0.5 rounded-full flex items-center gap-1">
           ${c.replace(/_/g, '/')} <button type="button" onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
 
-      // 사용자 태그
       document.getElementById('setting-user-tags').innerHTML = users.map((u, i) => `
         <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
           ${u} <button type="button" onclick="removeConfigItem('users', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
-      // 결제수단 태그
       document.getElementById('setting-pay-tags').innerHTML = pays.map((p, i) => `
         <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
           ${p} <button type="button" onclick="removeConfigItem('payMethods', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
@@ -1470,10 +1467,10 @@
 
       const recListEl = document.getElementById('recurring-list');
       if (recurrings.length === 0) {
-        recListEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-1">등록된 고정 지출이 없습니다.</div>';
+        recListEl.innerHTML = '<div class="text-[10px] opacity-50 text-center py-1">등록된 고정 지출이 없습니다.</div>';
       } else {
         recListEl.innerHTML = recurrings.map(r => `
-          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800 text-xs">
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border text-xs">
             <div>
               <span class="font-bold text-amber-400">매월 ${r.day}일</span>
               <span class="ml-1.5">${r.item}</span>
@@ -1517,6 +1514,29 @@
       a.href = URL.createObjectURL(blob);
       a.download = `isagaja_budget_backup.json`;
       a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && (parsed.transactions || parsed.assets || parsed.config)) {
+            appData = sanitizeAppData(parsed);
+            saveDatabase();
+            alert("백업 파일의 전체 데이터가 완벽하게 복원되었습니다!");
+            location.reload();
+          } else {
+            alert("올바른 가계부 백업(.json) 파일이 아닙니다.");
+          }
+        } catch(err) {
+          alert("파일 읽기 오류: " + err.message);
+        }
+      };
+      reader.readAsText(file);
     }
 
     function resetData() {
