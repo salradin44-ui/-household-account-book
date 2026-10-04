@@ -28,6 +28,8 @@
       --input-bg: #090D16;
       --input-text: #F8FAFC;
       --border-color: rgba(255, 255, 255, 0.1);
+      --tag-bg: #090D16;
+      --tag-text: #2DD4BF;
       --app-font: 'Pretendard', sans-serif;
     }
     body {
@@ -51,8 +53,13 @@
       border-color: var(--border-color) !important;
     }
     option {
-      background-color: #182232 !important;
-      color: #F8FAFC !important;
+      background-color: var(--card-bg) !important;
+      color: var(--input-text) !important;
+    }
+    .theme-tag {
+      background-color: var(--tag-bg) !important;
+      color: var(--tag-text) !important;
+      border: 1px solid var(--border-color);
     }
   </style>
 </head>
@@ -142,32 +149,22 @@
         </div>
       </div>
 
-      <!-- 📅 일별 피드 VS 달력 뷰 토글 탭 -->
+      <!-- 📅 메인을 달력 뷰로 고정 설정 -->
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <div class="flex space-x-2">
-            <button type="button" onclick="setDashboardViewMode('list')" id="view-mode-list-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950">일별 피드</button>
-            <button type="button" onclick="setDashboardViewMode('calendar')" id="view-mode-cal-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">📆 달력 뷰</button>
+            <button type="button" onclick="setDashboardViewMode('calendar')" id="view-mode-cal-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950">📆 달력 뷰</button>
+            <button type="button" onclick="setDashboardViewMode('list')" id="view-mode-list-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">일별 피드</button>
           </div>
           <span class="text-[10px] opacity-70" id="tx-page-info">1 / 1 페이지</span>
         </div>
-        
-        <!-- 1) 피드 리스트 뷰 -->
-        <div id="dash-view-list" class="space-y-3 text-xs">
-          <div id="recent-expense-list" class="space-y-3"></div>
-          <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
-            <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
-            <span class="text-[11px] opacity-70" id="tx-total-count">총 0건</span>
-            <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
-          </div>
-        </div>
 
-        <!-- 2) 달력 뷰 -->
-        <div id="dash-view-calendar" class="hidden space-y-3">
+        <!-- 1) 달력 뷰 (Calendar View - 메인 기본) -->
+        <div id="dash-view-calendar" class="space-y-3">
           <div class="flex justify-between items-center text-xs">
-            <button onclick="changeCalMonth(-1)" class="px-2 py-1 bg-slate-800 rounded border border-slate-700">◀ 이전달</button>
+            <button onclick="changeCalMonth(-1)" class="px-2 py-1 bg-slate-800 text-slate-200 rounded border border-slate-700">◀ 이전달</button>
             <span class="font-bold text-sm text-amber-400" id="cal-month-title">2026년 10월</span>
-            <button onclick="changeCalMonth(1)" class="px-2 py-1 bg-slate-800 rounded border border-slate-700">다음달 ▶</button>
+            <button onclick="changeCalMonth(1)" class="px-2 py-1 bg-slate-800 text-slate-200 rounded border border-slate-700">다음달 ▶</button>
           </div>
           
           <div class="grid grid-cols-7 gap-1 text-center text-[10px] opacity-70 font-bold border-b border-slate-800 pb-1">
@@ -175,6 +172,16 @@
           </div>
           
           <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-[9px]"></div>
+        </div>
+        
+        <!-- 2) 피드 리스트 뷰 -->
+        <div id="dash-view-list" class="hidden space-y-3 text-xs">
+          <div id="recent-expense-list" class="space-y-3"></div>
+          <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
+            <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
+            <span class="text-[11px] opacity-70" id="tx-total-count">총 0건</span>
+            <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
+          </div>
         </div>
 
       </div>
@@ -232,38 +239,41 @@
       </form>
     </section>
 
-    <!-- 3. 이시안(자녀용) 탭 -->
+    <!-- 3. 👶 이시안 부자만들기 프로젝트 탭 -->
     <section id="tab-child" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <h2 class="text-base font-bold text-sky-400 flex items-center gap-1.5">
-            <span>👶</span> 이시안 전용 용돈/지출 관리
+            <span>👶</span> 이시안 부자만들기 프로젝트
           </h2>
           <span class="text-[10px] bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-500/30">독립 가계부</span>
         </div>
 
         <div class="grid grid-cols-2 gap-2 pt-1">
-          <div class="card-glass p-3 rounded-xl border border-slate-800">
+          <div class="card-glass p-3 rounded-xl border">
             <div class="text-[10px] opacity-70">용돈 총 입금</div>
             <div class="text-sm font-bold text-emerald-400" id="child-total-income">0원</div>
           </div>
-          <div class="card-glass p-3 rounded-xl border border-slate-800">
+          <div class="card-glass p-3 rounded-xl border">
             <div class="text-[10px] opacity-70">용돈 총 지출</div>
             <div class="text-sm font-bold text-rose-400" id="child-total-expense">0원</div>
           </div>
         </div>
 
-        <form onsubmit="addChildTransaction(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
+        <form onsubmit="addChildTransaction(event)" class="space-y-2 card-glass p-3 rounded-xl border">
           <div class="grid grid-cols-2 gap-2">
             <input type="date" id="child-in-date" required class="p-2 border rounded-lg text-xs">
             <select id="child-in-type" class="p-2 border rounded-lg text-xs">
-              <option value="지출">이시안 지출</option>
+              <option value="지출">지출</option>
               <option value="수입">용돈 지급 (수입)</option>
             </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 준비물)" required class="p-2 border rounded-lg text-xs">
+            <select id="child-in-category" class="p-2 border rounded-lg text-xs"></select>
             <input type="number" id="child-in-amount" placeholder="금액 (원)" required class="p-2 border rounded-lg text-xs">
+          </div>
+          <div>
+            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 준비물, 용돈)" required class="w-full p-2 border rounded-lg text-xs">
           </div>
           <button type="submit" class="w-full py-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-lg text-xs transition">저장하기</button>
         </form>
@@ -281,7 +291,7 @@
         <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
           <span>🏦</span> 자산 보유 현황
         </h2>
-        <form onsubmit="addAsset(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
+        <form onsubmit="addAsset(event)" class="space-y-2 card-glass p-3 rounded-xl border">
           <div class="grid grid-cols-2 gap-2">
             <select id="asset-type" class="p-2 border rounded-lg text-xs">
               <option value="예금">예금 (현금성)</option>
@@ -360,6 +370,16 @@
         <div id="nav-order-list" class="space-y-1.5 text-xs"></div>
       </div>
 
+      <!-- 👶 이시안 전용 카테고리 관리 -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold text-sky-400">👶 이시안 전용 카테고리 관리</h3>
+        <div class="flex gap-2">
+          <input type="text" id="new-child-cat-input" placeholder="새 카테고리 (예: 학원비, 세배돈, 준비물)" class="flex-1 p-2 border rounded-lg text-xs">
+          <button type="button" onclick="addConfigItem('childCategories', 'new-child-cat-input')" class="bg-sky-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
+        </div>
+        <div id="setting-child-cat-tags" class="flex flex-wrap gap-1"></div>
+      </div>
+
       <!-- 👤 사용자 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">👤 사용자 (구성원) 관리</h3>
@@ -382,7 +402,7 @@
 
       <!-- 🏷️ 카테고리 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
-        <h3 class="text-xs font-bold opacity-80">🏷️ 카테고리 항목 관리</h3>
+        <h3 class="text-xs font-bold opacity-80">🏷️ 메인 카테고리 항목 관리</h3>
         <div class="flex gap-2">
           <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 border rounded-lg text-xs">
           <button type="button" onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
@@ -396,7 +416,7 @@
           <h3 class="text-xs font-bold text-amber-400">🔄 월별 고정지출 / 자동이체 관리</h3>
           <button type="button" onclick="applyMonthlyRecurring()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-lg">⚡ 이번 달 반영</button>
         </div>
-        <form onsubmit="addRecurringItem(event)" class="space-y-2 card-glass p-3 rounded-xl border border-slate-800">
+        <form onsubmit="addRecurringItem(event)" class="space-y-2 card-glass p-3 rounded-xl border">
           <div class="grid grid-cols-2 gap-2">
             <input type="number" id="rec-day" min="1" max="31" placeholder="매월 이체일(1~31일)" required class="p-2 border rounded-lg text-xs">
             <select id="rec-category" class="p-2 border rounded-lg text-xs"></select>
@@ -528,6 +548,7 @@
         ],
         config: {
           categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
+          childCategories: ["용돈", "학원비", "준비물", "세배돈", "간식", "기타"],
           users: ["남편", "아내", "공동"],
           payMethods: ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"],
           navOrder: ["dashboard", "input", "child", "asset", "budget", "settings"],
@@ -551,6 +572,9 @@
         } else {
           clean.config.categories = clean.config.categories.map(c => sanitizeKey(c));
         }
+        if (!clean.config.childCategories) {
+          clean.config.childCategories = ["용돈", "학원비", "준비물", "세배돈", "간식", "기타"];
+        }
         if (!clean.config.users || clean.config.users.length === 0) {
           clean.config.users = ["남편", "아내", "공동"];
         }
@@ -570,7 +594,7 @@
     let appData = getInitialDefaultData();
 
     let currentPeriodFilter = 'all';
-    let dashViewMode = 'list';
+    let dashViewMode = 'calendar'; // 달력 뷰 기본 설정
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth() + 1;
 
@@ -660,9 +684,11 @@
       
       const isLight = (theme.bgColor === '#FFFFFF');
       const cardBg = isLight ? '#FFFFFF' : '#182232';
-      const inputBg = isLight ? '#F1F5F9' : '#090D16';
+      const inputBg = isLight ? '#F8FAFC' : '#090D16';
       const inputTextColor = isLight ? '#0F172A' : '#F8FAFC';
       const borderColor = isLight ? '#CBD5E1' : 'rgba(255, 255, 255, 0.1)';
+      const tagBg = isLight ? '#E2E8F0' : '#090D16';
+      const tagText = isLight ? '#0F172A' : '#2DD4BF';
 
       document.documentElement.style.setProperty('--bg-color', theme.bgColor);
       document.documentElement.style.setProperty('--text-color', theme.textColor);
@@ -670,6 +696,8 @@
       document.documentElement.style.setProperty('--input-bg', inputBg);
       document.documentElement.style.setProperty('--input-text', inputTextColor);
       document.documentElement.style.setProperty('--border-color', borderColor);
+      document.documentElement.style.setProperty('--tag-bg', tagBg);
+      document.documentElement.style.setProperty('--tag-text', tagText);
       document.documentElement.style.setProperty('--app-font', theme.font || "'Pretendard', sans-serif");
       
       document.getElementById('bg-color-picker').value = theme.bgColor;
@@ -804,10 +832,11 @@
     }
 
     function renderDropdowns() {
-      if (!appData.config) appData.config = { categories: [], users: [], payMethods: [] };
+      if (!appData.config) appData.config = { categories: [], users: [], payMethods: [], childCategories: [] };
       const usersHtml = (appData.config.users || []).map(u => `<option value="${u}">${u}</option>`).join('');
       const catsHtml = (appData.config.categories || []).map(c => `<option value="${c}">${c.replace(/_/g, '/')}</option>`).join('');
       const paysHtml = (appData.config.payMethods || []).map(p => `<option value="${p}">${p}</option>`).join('');
+      const childCatsHtml = (appData.config.childCategories || ["용돈", "학원비", "준비물", "세배돈", "간식", "기타"]).map(c => `<option value="${c}">${c}</option>`).join('');
 
       document.getElementById('in-user').innerHTML = usersHtml;
       document.getElementById('in-category').innerHTML = catsHtml;
@@ -816,6 +845,10 @@
       document.getElementById('edit-user').innerHTML = usersHtml;
       document.getElementById('edit-category').innerHTML = catsHtml;
       document.getElementById('edit-paymethod').innerHTML = paysHtml;
+
+      if (document.getElementById('child-in-category')) {
+        document.getElementById('child-in-category').innerHTML = childCatsHtml;
+      }
 
       if (document.getElementById('rec-category')) {
         document.getElementById('rec-category').innerHTML = catsHtml;
@@ -856,6 +889,7 @@
         id: Date.now(),
         date: document.getElementById('child-in-date').value,
         type: document.getElementById('child-in-type').value,
+        category: document.getElementById('child-in-category').value,
         item: document.getElementById('child-in-item').value,
         amount: parseInt(document.getElementById('child-in-amount').value) || 0
       };
@@ -893,7 +927,7 @@
         listEl.innerHTML = childTxs.map(t => `
           <div class="flex justify-between items-center card-glass p-2.5 rounded-xl border">
             <div>
-              <div class="font-bold">${t.item}</div>
+              <div class="font-bold">${t.item} <span class="text-[9px] opacity-60">(${t.category || "용돈"})</span></div>
               <div class="text-[10px] opacity-60">${t.date}</div>
             </div>
             <div class="flex items-center space-x-2">
@@ -1066,6 +1100,7 @@
       renderCalendarView();
     }
 
+    // 원화 금액 전체 표기로 달력 축약 '1k' 보정
     function renderCalendarView() {
       document.getElementById('cal-month-title').innerText = `${calYear}년 ${calMonth}월`;
       const gridEl = document.getElementById('calendar-grid');
@@ -1090,9 +1125,9 @@
         gridEl.innerHTML += `
           <div onclick="openDayDetailModal('${dayStr}')" class="p-1 min-h-[52px] card-glass hover:opacity-80 rounded cursor-pointer flex flex-col justify-between transition">
             <div class="font-bold text-[10px]">${day}</div>
-            <div class="space-y-0.5 text-[8px] text-right">
-              ${dayIncome > 0 ? `<div class="text-emerald-400 font-bold">+${Math.round(dayIncome/1000)}k</div>` : ''}
-              ${dayExpense > 0 ? `<div class="text-rose-400 font-bold">-${Math.round(dayExpense/1000)}k</div>` : ''}
+            <div class="space-y-0.5 text-[8px] text-right font-semibold">
+              ${dayIncome > 0 ? `<div class="text-emerald-400">+${dayIncome.toLocaleString()}원</div>` : ''}
+              ${dayExpense > 0 ? `<div class="text-rose-400">-${dayExpense.toLocaleString()}원</div>` : ''}
             </div>
           </div>
         `;
@@ -1386,6 +1421,7 @@
 
     function renderSettings() {
       const cats = (appData.config && appData.config.categories) ? appData.config.categories : [];
+      const childCats = (appData.config && appData.config.childCategories) ? appData.config.childCategories : ["용돈", "학원비", "준비물", "세배돈", "간식", "기타"];
       const users = (appData.config && appData.config.users) ? appData.config.users : [];
       const pays = (appData.config && appData.config.payMethods) ? appData.config.payMethods : [];
       const recurrings = appData.recurring || [];
@@ -1404,20 +1440,30 @@
         `;
       }).join('');
 
+      // 이시안 전용 카테고리 태그
+      document.getElementById('setting-child-cat-tags').innerHTML = childCats.map((c, i) => `
+        <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
+          ${c} <button type="button" onclick="removeConfigItem('childCategories', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
+        </span>
+      `).join('');
+
+      // 메인 카테고리 태그
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
-        <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
+        <span class="text-xs theme-tag px-2 py-0.5 rounded-full flex items-center gap-1">
           ${c.replace(/_/g, '/')} <button type="button" onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
 
+      // 사용자 태그
       document.getElementById('setting-user-tags').innerHTML = users.map((u, i) => `
-        <span class="text-xs bg-slate-900 text-teal-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
+        <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
           ${u} <button type="button" onclick="removeConfigItem('users', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
 
+      // 결제수단 태그
       document.getElementById('setting-pay-tags').innerHTML = pays.map((p, i) => `
-        <span class="text-xs bg-slate-900 text-emerald-300 px-2.5 py-0.5 rounded-full border border-slate-800 flex items-center gap-1 font-bold">
+        <span class="text-xs theme-tag px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
           ${p} <button type="button" onclick="removeConfigItem('payMethods', ${i})" class="text-rose-400 font-bold ml-0.5">×</button>
         </span>
       `).join('');
