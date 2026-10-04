@@ -8,287 +8,324 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 웹 폰트 모음 (Pretendard, Gmarket Sans, Nanum Gothic) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap">
   <style>
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    @font-face {
+      font-family: 'GmarketSansMedium';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
     :root {
       --bg-color: #0F172A;
       --text-color: #F8FAFC;
+      --app-font: 'Pretendard', sans-serif;
     }
     body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      font-family: var(--app-font), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       -webkit-tap-highlight-color: transparent;
       transition: background-color 0.3s, color 0.3s;
     }
     .active-tab {
-      color: #F59E0B;
+      color: #10B981;
       font-weight: 700;
     }
     .card-glass {
-      background: rgba(30, 41, 59, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #182232;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
   </style>
 </head>
 <body class="pb-24">
 
-  <!-- 상단 앱 헤더 -->
-  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3.5 flex justify-between items-center">
+  <!-- 상단 헤더 -->
+  <header class="sticky top-0 z-40 bg-[#0B132B]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 flex justify-between items-center">
     <div class="flex items-center space-x-2">
-      <span class="text-2xl">🏠</span>
-      <h1 class="text-xl font-bold tracking-tight text-amber-400" id="header-title-text">이사가자 시안아!</h1>
+      <span class="text-xl">🏠</span>
+      <h1 class="text-lg font-bold tracking-tight text-white" id="header-title-text">이사가자 시안아!</h1>
     </div>
-    <div class="text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/50">
-      스마트 웹 가계부
-    </div>
+    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+      실시간 연동
+    </span>
   </header>
 
   <!-- 메인 컨테이너 -->
-  <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
+  <main class="max-w-md mx-auto px-4 pt-3 space-y-4">
 
     <!-- 1. 대시보드 탭 -->
-    <section id="tab-dashboard" class="space-y-4">
-      <!-- 핵심 KPI 지처 카운터 -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="card-glass p-4 rounded-2xl">
-          <div class="text-xs opacity-70 mb-1">🏦 총 자산 (보유)</div>
-          <div class="text-lg font-extrabold text-teal-400" id="dash-total-asset">0원</div>
-        </div>
-        <div class="card-glass p-4 rounded-2xl">
-          <div class="text-xs opacity-70 mb-1">💰 당월 총 수입</div>
-          <div class="text-lg font-extrabold text-emerald-400" id="dash-total-income">0원</div>
-        </div>
-        <div class="card-glass p-4 rounded-2xl">
-          <div class="text-xs opacity-70 mb-1">💸 당월 총 지출</div>
-          <div class="text-lg font-extrabold text-rose-400" id="dash-total-expense">0원</div>
-        </div>
-        <div class="card-glass p-4 rounded-2xl">
-          <div class="text-xs opacity-70 mb-1">✨ 당월 순수익 (잔여)</div>
-          <div class="text-lg font-extrabold text-amber-400" id="dash-net-income">0원</div>
+    <section id="tab-dashboard" class="space-y-3.5">
+      
+      <!-- 대형 상단 자산 요약 배너 -->
+      <div class="card-glass p-4 rounded-2xl space-y-2">
+        <div class="text-xs text-slate-400 font-medium">총 자산 평가액</div>
+        <div class="text-3xl font-extrabold tracking-tight text-white" id="dash-total-asset">0원</div>
+        
+        <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 text-xs">
+          <div class="text-slate-300">
+            당월 순수익: <span class="font-bold text-emerald-400" id="dash-net-income">0원</span>
+          </div>
+          <div class="text-slate-300">
+            저축률: <span class="font-bold text-emerald-400" id="dash-savings-rate">0%</span>
+          </div>
         </div>
       </div>
 
-      <!-- 자산 비중 차트 -->
-      <div class="card-glass p-4 rounded-2xl space-y-3">
-        <h3 class="text-sm font-bold flex items-center gap-1.5">
-          <span>📊</span> 자산 포트폴리오 비중
-        </h3>
-        <div class="relative h-48 flex justify-center items-center">
+      <!-- 당월 수입 & 지출 카드 -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card-glass p-3.5 rounded-2xl border-l-4 border-l-emerald-500">
+          <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+            <span class="text-emerald-400">⇣</span> 당월 총수입
+          </div>
+          <div class="text-base font-extrabold text-emerald-400" id="dash-total-income">0원</div>
+        </div>
+        <div class="card-glass p-3.5 rounded-2xl border-l-4 border-l-rose-500">
+          <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+            <span class="text-rose-400">⇡</span> 당월 총지출
+          </div>
+          <div class="text-base font-extrabold text-rose-400" id="dash-total-expense">0원</div>
+        </div>
+      </div>
+
+      <!-- 자산 포트폴리오 도넛 차트 -->
+      <div class="card-glass p-4 rounded-2xl space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <h3 class="font-bold text-white flex items-center gap-1.5">
+            <span class="text-teal-400">◐</span> 자산 포트폴리오
+          </h3>
+          <span class="text-slate-400 text-[11px]" id="dash-asset-count">4개 항목 보유</span>
+        </div>
+        <div class="relative h-44 flex justify-center items-center pt-1">
           <canvas id="assetDoughnutChart"></canvas>
         </div>
       </div>
 
-      <!-- 카테고리별 지출 차트 -->
-      <div class="card-glass p-4 rounded-2xl space-y-3">
-        <h3 class="text-sm font-bold flex items-center gap-1.5">
-          <span>🏷️</span> 당월 카테고리별 지출 분석
-        </h3>
-        <div class="relative h-56">
+      <!-- 카테고리별 지출 분석 차트 -->
+      <div class="card-glass p-4 rounded-2xl space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <h3 class="font-bold text-white flex items-center gap-1.5">
+            <span class="text-emerald-400">📊</span> 카테고리별 지출 분석
+          </h3>
+          <span class="text-slate-400 text-[11px]">소비 분석</span>
+        </div>
+        <div class="relative h-52 pt-1">
           <canvas id="expenseBarChart"></canvas>
         </div>
       </div>
 
-      <!-- 최근 지출 내역 -->
-      <div class="card-glass p-4 rounded-2xl space-y-3">
+      <!-- 최근 내역 -->
+      <div class="card-glass p-4 rounded-2xl space-y-2.5">
         <div class="flex justify-between items-center">
-          <h3 class="text-sm font-bold">최근 거래 내역</h3>
-          <span class="text-xs opacity-60">최근 5건</span>
+          <h3 class="text-xs font-bold text-white">최근 거래 내역</h3>
+          <span class="text-[10px] text-slate-400">최근 5건</span>
         </div>
-        <div id="recent-expense-list" class="space-y-2 text-sm"></div>
+        <div id="recent-expense-list" class="space-y-2 text-xs"></div>
       </div>
     </section>
 
     <!-- 2. 지출입력 탭 -->
-    <section id="tab-input" class="hidden card-glass p-5 rounded-2xl space-y-4">
-      <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+    <section id="tab-input" class="hidden card-glass p-4 rounded-2xl space-y-4">
+      <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
         <span>📝</span> 지출 및 수입 기록
       </h2>
 
       <!-- 문자 빠른 파싱 -->
-      <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 space-y-2">
-        <div class="text-xs text-amber-300 font-semibold">⚡ 결제 문자/알림톡 복사 붙여넣기</div>
-        <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 붙여넣으세요" class="w-full text-xs p-2 bg-slate-900/90 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:border-amber-400"></textarea>
-        <button onclick="parseSMS()" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs transition">금액 파싱 및 입력</button>
+      <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+        <div class="text-xs text-emerald-300 font-semibold">⚡ 결제 문자/알림톡 복사 붙여넣기</div>
+        <textarea id="sms-text" rows="2" placeholder="카드 승인 문자를 복사해서 여기에 붙여넣으세요" class="w-full text-xs p-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-400"></textarea>
+        <button onclick="parseSMS()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-lg text-xs transition">문자 파싱 및 자동 입력</button>
       </div>
 
       <form id="expense-form" class="space-y-3" onsubmit="addTransaction(event)">
         <div>
           <label class="text-xs opacity-70">날짜</label>
-          <input type="date" id="in-date" required class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+          <input type="date" id="in-date" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs opacity-70">구분</label>
-            <select id="in-type" class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+            <select id="in-type" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
               <option value="지출">지출</option>
               <option value="수입">수입</option>
             </select>
           </div>
           <div>
             <label class="text-xs opacity-70">사용자</label>
-            <select id="in-user" class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400"></select>
+            <select id="in-user" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs opacity-70">카테고리</label>
-            <select id="in-category" class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400"></select>
+            <select id="in-category" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
           </div>
           <div>
             <label class="text-xs opacity-70">결제수단</label>
-            <select id="in-paymethod" class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400"></select>
+            <select id="in-paymethod" class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400"></select>
           </div>
         </div>
         <div>
           <label class="text-xs opacity-70">내용 / 항목명</label>
-          <input type="text" id="in-item" placeholder="예: 이마트 장보기" required class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+          <input type="text" id="in-item" placeholder="예: 이마트 장보기" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
         </div>
         <div>
           <label class="text-xs opacity-70">금액 (원)</label>
-          <input type="number" id="in-amount" placeholder="0" required class="w-full mt-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-bold text-amber-400 focus:outline-none focus:border-amber-400">
+          <input type="number" id="in-amount" placeholder="0" required class="w-full mt-1 p-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-400">
         </div>
-        <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg transition">저장하기</button>
+        <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl text-xs shadow-lg transition">저장하기</button>
       </form>
     </section>
 
     <!-- 3. 자산현황 탭 -->
-    <section id="tab-asset" class="hidden space-y-4">
-      <div class="card-glass p-5 rounded-2xl space-y-4">
-        <h2 class="text-lg font-bold text-teal-400 flex items-center gap-2">
+    <section id="tab-asset" class="hidden space-y-3">
+      <div class="card-glass p-4 rounded-2xl space-y-3">
+        <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
           <span>🏦</span> 자산 보유 현황
         </h2>
-        <form onsubmit="addAsset(event)" class="space-y-3 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+        <form onsubmit="addAsset(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
           <div class="grid grid-cols-2 gap-2">
-            <select id="asset-type" class="p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100">
+            <select id="asset-type" class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
               <option value="예금">예금 (현금성)</option>
               <option value="적금">적금 (목돈)</option>
               <option value="주식">주식 (투자)</option>
-              <option value="부동산">부동산/기타</option>
+              <option value="기타/부동산">기타/부동산</option>
             </select>
-            <input type="text" id="asset-name" placeholder="자산명 (예: 청약)" required class="p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100">
+            <input type="text" id="asset-name" placeholder="자산명 (예: 청약)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="asset-amount" placeholder="평가액/잔액" required class="p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100">
+            <input type="number" id="asset-amount" placeholder="평가액/잔액" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
             <button type="submit" class="bg-teal-500 text-slate-950 font-bold rounded-lg text-xs">자산 추가</button>
           </div>
         </form>
-        <div id="asset-list" class="space-y-2 text-sm"></div>
+        <div id="asset-list" class="space-y-2 text-xs"></div>
       </div>
     </section>
 
-    <!-- 4. 예산관리 탭 (소진율 위험 기준 설정 포함) -->
-    <section id="tab-budget" class="hidden card-glass p-5 rounded-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+    <!-- 4. 예산관리 탭 -->
+    <section id="tab-budget" class="hidden card-glass p-4 rounded-2xl space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <h2 class="text-base font-bold text-emerald-400 flex items-center gap-1.5">
           <span>🎯</span> 예산 소진율 관리
         </h2>
         <div class="flex items-center space-x-1">
-          <span class="text-xs opacity-70">위험 기준:</span>
-          <input type="number" id="budget-warn-threshold" value="80" min="1" max="100" onchange="updateWarnThreshold(this.value)" class="w-12 p-1 text-center text-xs bg-slate-900 border border-slate-700 rounded text-amber-400 font-bold">
-          <span class="text-xs opacity-70">%</span>
+          <span class="text-[10px] opacity-70">위험 기준:</span>
+          <input type="number" id="budget-warn-threshold" value="80" min="1" max="100" onchange="updateWarnThreshold(this.value)" class="w-10 p-0.5 text-center text-xs bg-slate-950 border border-slate-800 rounded text-emerald-400 font-bold">
+          <span class="text-[10px] opacity-70">%</span>
         </div>
       </div>
-      <div id="budget-progress-list" class="space-y-4"></div>
+      <div id="budget-progress-list" class="space-y-3"></div>
     </section>
 
-    <!-- 5. 설정 탭 (타이틀, 커스텀 테마 색상 설정 포함) -->
-    <section id="tab-settings" class="hidden card-glass p-5 rounded-2xl space-y-5">
-      <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+    <!-- 5. 설정 탭 (글꼴 폰트 선택 기능 포함) -->
+    <section id="tab-settings" class="hidden card-glass p-4 rounded-2xl space-y-4">
+      <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
         <span>⚙️</span> 가계부 설정 & 테마
       </h2>
 
       <!-- 타이틀 수정 -->
-      <div class="space-y-2">
-        <label class="text-xs font-bold opacity-80">가계부 이름(타이틀) 변경</label>
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold opacity-80">가계부 이름 변경</label>
         <div class="flex gap-2">
-          <input type="text" id="setting-title-input" placeholder="이사가자 시안아!" class="flex-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100">
-          <button onclick="updateAppTitle()" class="bg-amber-500 text-slate-950 px-3 py-2 font-bold rounded-lg text-xs">변경</button>
+          <input type="text" id="setting-title-input" placeholder="이사가자 시안아!" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <button onclick="updateAppTitle()" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">변경</button>
         </div>
       </div>
 
-      <!-- 테마/배경/글씨 색상 커스텀 -->
-      <div class="space-y-3 border-t border-slate-800 pt-4">
-        <h3 class="text-xs font-bold opacity-80">앱 커스텀 색상 설정</h3>
-        <div class="grid grid-cols-2 gap-3">
+      <!-- 폰트 글꼴 선택 -->
+      <div class="space-y-1.5 border-t border-slate-800 pt-3">
+        <label class="text-xs font-bold opacity-80">앱 폰트(글꼴) 선택</label>
+        <select id="font-family-select" onchange="changeFontFamily(this.value)" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 focus:outline-none">
+          <option value="'Pretendard', sans-serif">프리텐다드 (Pretendard - 기본 추천)</option>
+          <option value="'GmarketSansMedium', sans-serif">지마켓 산스 (Gmarket Sans - 또렷함)</option>
+          <option value="'Nanum Gothic', sans-serif">나눔고딕 (Nanum Gothic)</option>
+        </select>
+      </div>
+
+      <!-- 색상 커스텀 -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">앱 배경 및 글씨 색상</h3>
+        <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-[11px] opacity-70 block mb-1">배경 색상</label>
-            <input type="color" id="bg-color-picker" value="#0F172A" onchange="changeThemeColor('bgColor', this.value)" class="w-full h-8 bg-transparent cursor-pointer rounded border border-slate-700">
+            <label class="text-[10px] opacity-70 block mb-1">배경 색상</label>
+            <input type="color" id="bg-color-picker" value="#0F172A" onchange="changeThemeColor('bgColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
           </div>
           <div>
-            <label class="text-[11px] opacity-70 block mb-1">글자 색상</label>
-            <input type="color" id="text-color-picker" value="#F8FAFC" onchange="changeThemeColor('textColor', this.value)" class="w-full h-8 bg-transparent cursor-pointer rounded border border-slate-700">
+            <label class="text-[10px] opacity-70 block mb-1">글자 색상</label>
+            <input type="color" id="text-color-picker" value="#F8FAFC" onchange="changeThemeColor('textColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
           </div>
         </div>
-        <button onclick="resetThemeColors()" class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded border border-slate-700 text-slate-300">기본 테마로 복원</button>
+        <button onclick="resetThemeColors()" class="w-full py-1 bg-slate-800 text-[11px] rounded border border-slate-700 text-slate-300">기본 테마 복원</button>
       </div>
 
       <!-- 카테고리 관리 -->
-      <div class="space-y-3 border-t border-slate-800 pt-4">
+      <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">카테고리 항목 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-100">
-          <button onclick="addConfigItem('categories', 'new-cat-input')" class="bg-amber-500 text-slate-950 px-3 py-2 font-bold rounded-lg text-xs">추가</button>
+          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <button onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
-        <div id="setting-cat-tags" class="flex flex-wrap gap-1.5"></div>
+        <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
       <!-- 백업 및 초기화 -->
-      <div class="space-y-3 border-t border-slate-800 pt-4">
+      <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">데이터 백업 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="exportData()" class="py-2 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">JSON 백업 다운로드</button>
-          <button onclick="resetData()" class="py-2 bg-rose-950 text-rose-400 text-xs rounded-lg border border-rose-800">전체 초기화</button>
+          <button onclick="exportData()" class="py-1.5 bg-slate-800 text-xs rounded border border-slate-700">백업 다운로드</button>
+          <button onclick="resetData()" class="py-1.5 bg-rose-950 text-rose-400 text-xs rounded border border-rose-900">전체 초기화</button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- 하단 탭 바 -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 max-w-md mx-auto">
-    <div class="flex justify-around items-center h-16 text-xs opacity-80">
-      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-1 active-tab">
-        <span class="text-lg">📊</span>
+  <!-- 하단 네비게이션 탭 바 -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
+    <div class="flex justify-around items-center h-14 text-[11px] opacity-80">
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-0.5 active-tab">
+        <span class="text-base">📊</span>
         <span>대시보드</span>
       </button>
-      <button onclick="switchTab('input')" id="nav-input" class="flex flex-col items-center space-y-1">
-        <span class="text-lg">📝</span>
+      <button onclick="switchTab('input')" id="nav-input" class="flex flex-col items-center space-y-0.5">
+        <span class="text-base">📝</span>
         <span>지출입력</span>
       </button>
-      <button onclick="switchTab('asset')" id="nav-asset" class="flex flex-col items-center space-y-1">
-        <span class="text-lg">🏦</span>
+      <button onclick="switchTab('asset')" id="nav-asset" class="flex flex-col items-center space-y-0.5">
+        <span class="text-base">🏦</span>
         <span>자산현황</span>
       </button>
-      <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center space-y-1">
-        <span class="text-lg">🎯</span>
+      <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center space-y-0.5">
+        <span class="text-base">🎯</span>
         <span>예산관리</span>
       </button>
-      <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center space-y-1">
-        <span class="text-lg">⚙️</span>
+      <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center space-y-0.5">
+        <span class="text-base">⚙️</span>
         <span>설정</span>
       </button>
     </div>
   </nav>
 
-  <!-- JavaScript 애플리케이션 로직 -->
+  <!-- JS 로직 -->
   <script>
     let appData = {
       title: "이사가자 시안아!",
-      theme: { bgColor: "#0F172A", textColor: "#F8FAFC" },
+      theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
       budgetWarnThreshold: 80,
       transactions: [],
       assets: [
-        { type: '예금', name: '주거래 통장', amount: 5000000 },
+        { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
         { type: '적금', name: '청약저축', amount: 6000000 },
-        { type: '주식', name: '삼성전자', amount: 8000000 }
+        { type: '주식', name: '삼성전자', amount: 8000000 },
+        { type: '기타/부동산', name: '전세보증금', amount: 180500000 }
       ],
       config: {
-        categories: ["식비", "육아/교육", "주거/공과금", "교통/차량", "생활/생필품", "통신비", "보험/의료", "쇼핑/패션", "여가/문화", "경조사", "기타"],
+        categories: ["식비", "주거/공과금", "교통/차량", "육아/교육", "생활/생필품", "통신비", "보험/의료", "쇼핑/패션", "여가/문화", "경조사", "기타"],
         users: ["남편", "아내", "공동"],
         payMethods: ["신용카드", "체크카드", "현금", "계좌이체", "자동이체"],
-        budgets: { "식비": 600000, "육아/교육": 600000, "주거/공과금": 500000, "교통/차량": 300000 }
+        budgets: { "식비": 600000, "주거/공과금": 500000, "교통/차량": 300000, "육아/교육": 600000 }
       }
     };
 
@@ -320,13 +357,25 @@
       document.getElementById('app-page-title').innerText = appData.title || "이사가자 시안아!";
       document.getElementById('setting-title-input').value = appData.title || "이사가자 시안아!";
 
-      const theme = appData.theme || { bgColor: "#0F172A", textColor: "#F8FAFC" };
+      const theme = appData.theme || { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
       document.documentElement.style.setProperty('--bg-color', theme.bgColor);
       document.documentElement.style.setProperty('--text-color', theme.textColor);
+      document.documentElement.style.setProperty('--app-font', theme.font || "'Pretendard', sans-serif");
+      
       document.getElementById('bg-color-picker').value = theme.bgColor;
       document.getElementById('text-color-picker').value = theme.textColor;
+      if (document.getElementById('font-family-select')) {
+        document.getElementById('font-family-select').value = theme.font || "'Pretendard', sans-serif";
+      }
 
       document.getElementById('budget-warn-threshold').value = appData.budgetWarnThreshold || 80;
+    }
+
+    function changeFontFamily(fontVal) {
+      if (!appData.theme) appData.theme = {};
+      appData.theme.font = fontVal;
+      saveLocalStorage();
+      applyThemeAndTitle();
     }
 
     function updateAppTitle() {
@@ -335,7 +384,7 @@
         appData.title = newTitle;
         saveLocalStorage();
         applyThemeAndTitle();
-        alert("가계부 타이틀이 변경되었습니다!");
+        alert("타이틀이 변경되었습니다!");
       }
     }
 
@@ -347,7 +396,7 @@
     }
 
     function resetThemeColors() {
-      appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC" };
+      appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
       saveLocalStorage();
       applyThemeAndTitle();
     }
@@ -398,6 +447,7 @@
       switchTab('dashboard');
     }
 
+    // 문자 자동 파싱 및 추출 기능
     function parseSMS() {
       const text = document.getElementById('sms-text').value;
       if (!text) return;
@@ -406,29 +456,41 @@
       if (amtMatch) {
         document.getElementById('in-amount').value = parseInt(amtMatch[1].replace(/,/g, ''));
       }
-      document.getElementById('in-item').value = "카드 승인 내역";
-      alert("금액이 파싱되었습니다!");
+      
+      // 상호명 추출 파싱
+      const parts = text.split(/\s+/);
+      if (parts.length > 2) {
+        document.getElementById('in-item').value = parts[parts.length - 1] || "카드 승인 내역";
+      } else {
+        document.getElementById('in-item').value = "카드 승인 내역";
+      }
+      alert("문자에서 금액 및 상호가 자동 채워졌습니다!");
     }
 
     function renderDashboard() {
       const totalAsset = appData.assets.reduce((sum, a) => sum + a.amount, 0);
       const totalIncome = appData.transactions.filter(t => t.type === '수입').reduce((sum, t) => sum + t.amount, 0);
       const totalExpense = appData.transactions.filter(t => t.type === '지출').reduce((sum, t) => sum + t.amount, 0);
+      const netIncome = totalIncome - totalExpense;
+      const savingsRate = totalIncome > 0 ? ((netIncome / totalIncome) * 100).toFixed(1) : 0;
 
       document.getElementById('dash-total-asset').innerText = totalAsset.toLocaleString() + '원';
       document.getElementById('dash-total-income').innerText = totalIncome.toLocaleString() + '원';
       document.getElementById('dash-total-expense').innerText = totalExpense.toLocaleString() + '원';
-      document.getElementById('dash-net-income').innerText = (totalIncome - totalExpense).toLocaleString() + '원';
+      document.getElementById('dash-net-income').innerText = netIncome.toLocaleString() + '원';
+      document.getElementById('dash-savings-rate').innerText = savingsRate + '%';
+      
+      document.getElementById('dash-asset-count').innerText = appData.assets.length + '개 항목 보유';
 
       const listEl = document.getElementById('recent-expense-list');
       if (appData.transactions.length === 0) {
-        listEl.innerHTML = '<div class="text-xs opacity-50 text-center py-2">등록된 내역이 없습니다.</div>';
+        listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-2">등록된 내역이 없습니다.</div>';
       } else {
         listEl.innerHTML = appData.transactions.slice(0, 5).map(t => `
-          <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded-xl border border-slate-800/80">
             <div>
-              <div class="font-bold text-slate-200">${t.item} <span class="text-xs font-normal opacity-60">(${t.category})</span></div>
-              <div class="text-xs opacity-50">${t.date} · ${t.user}</div>
+              <div class="font-bold text-slate-200">${t.item} <span class="text-[10px] font-normal opacity-60">(${t.category})</span></div>
+              <div class="text-[10px] opacity-50">${t.date} · ${t.user}</div>
             </div>
             <div class="font-extrabold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
               ${t.type === '수입' ? '+' : '-'}${t.amount.toLocaleString()}원
@@ -446,7 +508,13 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 10 } } } }
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: '#94A3B8', font: { size: 10 }, boxWidth: 10, padding: 8 }
+            }
+          },
+          cutout: '70%'
         }
       });
 
@@ -455,12 +523,13 @@
         type: 'bar',
         data: getExpenseChartData(),
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { ticks: { color: '#94A3B8', font: { size: 9 } }, grid: { display: false } },
-            y: { ticks: { color: '#94A3B8', font: { size: 9 } }, grid: { color: '#334155' } }
+            x: { ticks: { color: '#64748B', font: { size: 8 } }, grid: { color: '#1E293B' } },
+            y: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { display: false } }
           }
         }
       });
@@ -476,41 +545,42 @@
     }
 
     function getAssetChartData() {
-      const types = ['예금', '적금', '주식', '부동산'];
-      const amounts = types.map(t => appData.assets.filter(a => a.type === t).reduce((sum, a) => sum + a.amount, 0));
+      const types = ['예금', '적금', '주식', '기타/부동산'];
+      const amounts = types.map(t => appData.assets.filter(a => a.type === t || a.type.includes(t)).reduce((sum, a) => sum + a.amount, 0));
       return {
         labels: types,
         datasets: [{
           data: amounts,
-          backgroundColor: ['#2DD4BF', '#38BDF8', '#F59E0B', '#F43F5E'],
+          backgroundColor: ['#10B981', '#0EA5E9', '#A855F7', '#F59E0B'],
           borderWidth: 0
         }]
       };
     }
 
     function getExpenseChartData() {
-      const cats = appData.config.categories.slice(0, 6);
+      const cats = appData.config.categories.slice(0, 4);
       const amounts = cats.map(c => appData.transactions.filter(t => t.type === '지출' && t.category === c).reduce((sum, t) => sum + t.amount, 0));
       return {
         labels: cats,
         datasets: [{
           label: '지출액',
           data: amounts,
-          backgroundColor: '#F59E0B',
-          borderRadius: 6
+          backgroundColor: '#10B981',
+          borderRadius: 4,
+          barThickness: 10
         }]
       };
     }
 
     function renderAssetList() {
       document.getElementById('asset-list').innerHTML = appData.assets.map((a, idx) => `
-        <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+        <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800">
           <div>
-            <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-teal-300">${a.type}</span>
-            <span class="font-bold ml-1.5 text-slate-200">${a.name}</span>
+            <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${a.type}</span>
+            <span class="font-bold ml-1 text-slate-200">${a.name}</span>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="font-bold text-amber-400">${a.amount.toLocaleString()}원</span>
+            <span class="font-bold text-emerald-400">${a.amount.toLocaleString()}원</span>
             <button onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
           </div>
         </div>
@@ -545,18 +615,18 @@
         const barPct = Math.min(rawPct, 100);
 
         const isWarning = rawPct >= threshold;
-        const barColor = isWarning ? 'bg-rose-500' : 'bg-amber-500';
+        const barColor = isWarning ? 'bg-rose-500' : 'bg-emerald-500';
 
         return `
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
             <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="font-bold text-sm text-slate-200">${c}</span>
-              <div class="flex items-center space-x-2">
-                <span class="${isWarning ? 'text-rose-400 font-extrabold' : 'text-amber-400'}">${spent.toLocaleString()} / ${target.toLocaleString()}원 (${rawPct}%)</span>
-                <button onclick="updateBudgetTarget('${c}')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-700">예산 변경</button>
+              <span class="font-bold text-xs text-slate-200">${c}</span>
+              <div class="flex items-center space-x-1.5">
+                <span class="${isWarning ? 'text-rose-400 font-extrabold' : 'text-emerald-400'}">${spent.toLocaleString()} / ${target.toLocaleString()}원 (${rawPct}%)</span>
+                <button onclick="updateBudgetTarget('${c}')" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">변경</button>
               </div>
             </div>
-            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
               <div class="${barColor} h-full transition-all" style="width: ${barPct}%"></div>
             </div>
           </div>
@@ -576,7 +646,7 @@
 
     function renderSettings() {
       document.getElementById('setting-cat-tags').innerHTML = appData.config.categories.map((c, i) => `
-        <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1">
+        <span class="text-xs bg-slate-900 text-slate-300 px-2 py-0.5 rounded-full border border-slate-800 flex items-center gap-1">
           ${c} <button onclick="removeConfigItem('categories', ${i})" class="text-rose-400 font-bold">×</button>
         </span>
       `).join('');
