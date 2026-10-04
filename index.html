@@ -24,6 +24,7 @@
     :root {
       --bg-color: #0F172A;
       --text-color: #F8FAFC;
+      --card-bg: #182232;
       --app-font: 'Pretendard', sans-serif;
     }
     body {
@@ -38,8 +39,8 @@
       font-weight: 700;
     }
     .card-glass {
-      background: #182232;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
   </style>
 </head>
@@ -129,23 +130,41 @@
         </div>
       </div>
 
-      <!-- 일별 그룹화 거래 내역 (스크린샷 피드 반영) -->
+      <!-- 📅 일별 피드 VS 달력 뷰 토글 탭 -->
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <h3 class="text-xs font-bold text-white flex items-center gap-1">
-            <span>📅</span> 일별 상세 내역
-          </h3>
+          <div class="flex space-x-2">
+            <button type="button" onclick="setDashboardViewMode('list')" id="view-mode-list-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950">일별 피드</button>
+            <button type="button" onclick="setDashboardViewMode('calendar')" id="view-mode-cal-btn" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">📆 달력 뷰</button>
+          </div>
           <span class="text-[10px] text-slate-400" id="tx-page-info">1 / 1 페이지</span>
         </div>
         
-        <div id="recent-expense-list" class="space-y-3 text-xs"></div>
-
-        <!-- 페이지네이션 컨트롤 -->
-        <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
-          <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
-          <span class="text-[11px] text-slate-400" id="tx-total-count">총 0건</span>
-          <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
+        <!-- 1) 피드 리스트 뷰 -->
+        <div id="dash-view-list" class="space-y-3 text-xs">
+          <div id="recent-expense-list" class="space-y-3"></div>
+          <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
+            <button onclick="prevTxPage()" id="prev-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">이전</button>
+            <span class="text-[11px] text-slate-400" id="tx-total-count">총 0건</span>
+            <button onclick="nextTxPage()" id="next-page-btn" class="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 disabled:opacity-40">다음</button>
+          </div>
         </div>
+
+        <!-- 2) 달력 뷰 (Calendar View) -->
+        <div id="dash-view-calendar" class="hidden space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <button onclick="changeCalMonth(-1)" class="px-2 py-1 bg-slate-800 rounded border border-slate-700">◀ 이전달</button>
+            <span class="font-bold text-sm text-amber-400" id="cal-month-title">2026년 10월</span>
+            <button onclick="changeCalMonth(1)" class="px-2 py-1 bg-slate-800 rounded border border-slate-700">다음달 ▶</button>
+          </div>
+          
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-400 font-bold border-b border-slate-800 pb-1">
+            <span class="text-rose-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-sky-400">토</span>
+          </div>
+          
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-[9px]"></div>
+        </div>
+
       </div>
     </section>
 
@@ -201,47 +220,44 @@
       </form>
     </section>
 
-    <!-- 3. 자녀용 독립 가계부 탭 (신규 추가!) -->
+    <!-- 3. 이시안(자녀용) 독립 가계부 탭 -->
     <section id="tab-child" class="hidden space-y-4">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <h2 class="text-base font-bold text-sky-400 flex items-center gap-1.5">
-            <span>👶</span> 자녀 전용 용돈/지출 관리
+            <span>👶</span> 이시안 전용 용돈/지출 관리
           </h2>
           <span class="text-[10px] bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-500/30">독립 가계부</span>
         </div>
 
-        <!-- 자녀 자산/용돈 잔액 요약 -->
         <div class="grid grid-cols-2 gap-2 pt-1">
           <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div class="text-[10px] text-slate-400">자녀 용돈 총 입금</div>
+            <div class="text-[10px] text-slate-400">용돈 총 입금</div>
             <div class="text-sm font-bold text-emerald-400" id="child-total-income">0원</div>
           </div>
           <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div class="text-[10px] text-slate-400">자녀 용돈 총 지출</div>
+            <div class="text-[10px] text-slate-400">용돈 총 지출</div>
             <div class="text-sm font-bold text-rose-400" id="child-total-expense">0원</div>
           </div>
         </div>
 
-        <!-- 자녀용 지출/입금 등록 폼 -->
         <form onsubmit="addChildTransaction(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
           <div class="grid grid-cols-2 gap-2">
             <input type="date" id="child-in-date" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
             <select id="child-in-type" class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-              <option value="지출">자녀 지출</option>
-              <option value="수입">자녀 용돈 지급(수입)</option>
+              <option value="지출">이시안 지출</option>
+              <option value="수입">용돈 지급 (수입)</option>
             </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 문구점)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+            <input type="text" id="child-in-item" placeholder="항목명 (예: 학원비, 준비물)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
             <input type="number" id="child-in-amount" placeholder="금액 (원)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
           </div>
-          <button type="submit" class="w-full py-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-lg text-xs transition">자녀 내역 저장</button>
+          <button type="submit" class="w-full py-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold rounded-lg text-xs transition">저장하기</button>
         </form>
 
-        <!-- 자녀 거래 내역 목록 -->
         <div class="pt-2">
-          <h3 class="text-xs font-bold text-slate-300 mb-2">최근 자녀 용돈/지출 내역</h3>
+          <h3 class="text-xs font-bold text-slate-300 mb-2">이시안 최근 용돈/지출 내역</h3>
           <div id="child-transaction-list" class="space-y-2 text-xs"></div>
         </div>
       </div>
@@ -290,7 +306,7 @@
     <!-- 6. 설정 탭 -->
     <section id="tab-settings" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
-        <span>⚙️</span> 가계부 설정 & 고정지출
+        <span>⚙️</span> 가계부 설정 & 테마
       </h2>
 
       <!-- 가계부 이름 변경 -->
@@ -302,17 +318,36 @@
         </div>
       </div>
 
-      <!-- 👤 사용자 이름 관리 -->
+      <!-- 🎨 테마 고르기 (어두운 테마 / 밝은 테마 선택) -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">🎨 테마 모드 선택</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setPresetTheme('dark')" class="py-2 bg-slate-900 border border-slate-700 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+            <span>🌙</span> 어두운 테마
+          </button>
+          <button type="button" onclick="setPresetTheme('light')" class="py-2 bg-slate-100 border border-slate-300 text-slate-900 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+            <span>☀️</span> 밝은 테마
+          </button>
+        </div>
+      </div>
+
+      <!-- 📌 하단 네비게이션 탭 순서 설정 -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">📌 하단 네비게이션 탭 순서 조정</h3>
+        <div id="nav-order-list" class="space-y-1.5 text-xs"></div>
+      </div>
+
+      <!-- 👤 사용자 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">👤 사용자 (구성원) 관리</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내, 첫째)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <input type="text" id="new-user-input" placeholder="새 사용자 이름 (예: 남편, 아내, 시안)" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
           <button type="button" onclick="addConfigItem('users', 'new-user-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
         </div>
         <div id="setting-user-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 💳 결제 수단 관리 (현금영수증 기본 추가!) -->
+      <!-- 💳 결제 수단 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">💳 결제 수단 관리</h3>
         <div class="flex gap-2">
@@ -322,14 +357,22 @@
         <div id="setting-pay-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 🔄 월별 고정지출/자동이체 등록 관리 -->
+      <!-- 🏷️ 카테고리 관리 -->
+      <div class="space-y-2 border-t border-slate-800 pt-3">
+        <h3 class="text-xs font-bold opacity-80">🏷️ 카테고리 항목 관리</h3>
+        <div class="flex gap-2">
+          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
+          <button type="button" onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
+        </div>
+        <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
+      </div>
+
+      <!-- 🔄 월별 고정지출/자동이체 -->
       <div class="space-y-3 border-t border-slate-800 pt-3">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-bold text-amber-400">🔄 월별 고정지출 / 자동이체 관리</h3>
-          <button type="button" onclick="applyMonthlyRecurring()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-lg">⚡ 이번 달 자동이체 일괄 반영</button>
+          <button type="button" onclick="applyMonthlyRecurring()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-lg">⚡ 이번 달 반영</button>
         </div>
-        <p class="text-[10px] text-slate-400">매달 자동으로 나가는 관리비, 구독료 등을 등록해두면 터치 한 번으로 이번 달 지출에 등록됩니다.</p>
-        
         <form onsubmit="addRecurringItem(event)" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
           <div class="grid grid-cols-2 gap-2">
             <input type="number" id="rec-day" min="1" max="31" placeholder="매월 이체일(1~31일)" required class="p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
@@ -341,42 +384,10 @@
           </div>
           <button type="submit" class="w-full py-1.5 bg-slate-800 text-slate-200 font-bold rounded-lg text-xs border border-slate-700">고정 지출 등록</button>
         </form>
-
         <div id="recurring-list" class="space-y-2 text-xs"></div>
       </div>
 
-      <!-- 카테고리 항목 관리 -->
-      <div class="space-y-2 border-t border-slate-800 pt-3">
-        <h3 class="text-xs font-bold opacity-80">🏷️ 카테고리 항목 관리</h3>
-        <div class="flex gap-2">
-          <input type="text" id="new-cat-input" placeholder="새 카테고리명" class="flex-1 p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100">
-          <button type="button" onclick="addConfigItem('categories', 'new-cat-input')" class="bg-emerald-500 text-slate-950 px-3 py-1.5 font-bold rounded-lg text-xs">추가</button>
-        </div>
-        <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
-      </div>
-
-      <!-- 폰트 및 테마 색상 -->
-      <div class="space-y-2 border-t border-slate-800 pt-3">
-        <h3 class="text-xs font-bold opacity-80">🎨 앱 테마 및 폰트</h3>
-        <select id="font-family-select" onchange="changeFontFamily(this.value)" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-100 focus:outline-none">
-          <option value="'Pretendard', sans-serif">프리텐다드 (Pretendard - 기본)</option>
-          <option value="'GmarketSansMedium', sans-serif">지마켓 산스 (Gmarket Sans)</option>
-          <option value="'Nanum Gothic', sans-serif">나눔고딕 (Nanum Gothic)</option>
-        </select>
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <div>
-            <label class="text-[10px] opacity-70 block mb-1">배경 색상</label>
-            <input type="color" id="bg-color-picker" value="#0F172A" onchange="changeThemeColor('bgColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
-          </div>
-          <div>
-            <label class="text-[10px] opacity-70 block mb-1">글자 색상</label>
-            <input type="color" id="text-color-picker" value="#F8FAFC" onchange="changeThemeColor('textColor', this.value)" class="w-full h-7 bg-transparent cursor-pointer rounded border border-slate-800">
-          </div>
-        </div>
-        <button type="button" onclick="resetThemeColors()" class="w-full py-1 bg-slate-800 text-[11px] rounded border border-slate-700 text-slate-300">기본 테마 복원</button>
-      </div>
-
-      <!-- 데이터 백업 및 초기화 -->
+      <!-- 백업 및 초기화 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">데이터 백업 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -435,34 +446,20 @@
     </div>
   </div>
 
-  <!-- 하단 6개 탭 네비게이션 (자녀용 탭 포함!) -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
-    <div class="flex justify-around items-center h-14 text-[10px] opacity-80">
-      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-0.5 active-tab">
-        <span class="text-base">📊</span>
-        <span>대시보드</span>
-      </button>
-      <button onclick="switchTab('input')" id="nav-input" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">📝</span>
-        <span>지출입력</span>
-      </button>
-      <button onclick="switchTab('child')" id="nav-child" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">👶</span>
-        <span>자녀용</span>
-      </button>
-      <button onclick="switchTab('asset')" id="nav-asset" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">🏦</span>
-        <span>자산현황</span>
-      </button>
-      <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">🎯</span>
-        <span>예산관리</span>
-      </button>
-      <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center space-y-0.5">
-        <span class="text-base">⚙️</span>
-        <span>설정</span>
-      </button>
+  <!-- 달력 날짜 클릭 시 해당 날짜 세부 내역 팝업 모달 -->
+  <div id="day-detail-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-bold text-amber-400" id="day-detail-title">2026-10-04 내역</h3>
+        <button onclick="closeDayDetailModal()" class="text-xs text-slate-400">✕ 닫기</button>
+      </div>
+      <div id="day-detail-list" class="space-y-2 text-xs"></div>
     </div>
+  </div>
+
+  <!-- Dynamic 하단 6개 탭 네비게이션 바 -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#0B132B]/95 backdrop-blur-lg border-t border-slate-800/80 max-w-md mx-auto">
+    <div class="flex justify-around items-center h-14 text-[10px] opacity-80" id="dynamic-nav-bar"></div>
   </nav>
 
   <!-- JS 및 파이어베이스 연동 로직 -->
@@ -507,11 +504,11 @@
           }
           clean.config.budgets = newBudgets;
         }
-        // 기본 결제수단에 '현금영수증' 추가
         if (!clean.config.payMethods) {
           clean.config.payMethods = ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"];
-        } else if (!clean.config.payMethods.includes("현금영수증")) {
-          clean.config.payMethods.push("현금영수증");
+        }
+        if (!clean.config.navOrder) {
+          clean.config.navOrder = ["dashboard", "input", "child", "asset", 'budget', "settings"];
         }
       }
       if (!clean.childTransactions) clean.childTransactions = [];
@@ -524,7 +521,7 @@
       theme: { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" },
       budgetWarnThreshold: 80,
       transactions: [],
-      childTransactions: [], // 자녀 전용 독립 거래내역
+      childTransactions: [],
       recurring: [],
       assets: [
         { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
@@ -536,16 +533,30 @@
         categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
         users: ["남편", "아내", "공동"],
         payMethods: ["신용카드", "체크카드", "현금", "현금영수증", "계좌이체", "자동이체"],
+        navOrder: ["dashboard", "input", "child", "asset", "budget", "settings"],
         budgets: { "식비": 600000, "주거_공과금": 500000, "교통_차량": 300000, "육아_교육": 600000 }
       }
     };
 
     let currentPeriodFilter = 'month';
+    let dashViewMode = 'list'; // 'list' | 'calendar'
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth() + 1; // 1 ~ 12
+
     let currentTxPage = 1;
     const txPerPage = 20;
 
     let doughnutChart = null;
     let barChart = null;
+
+    const navMeta = {
+      dashboard: { icon: "📊", label: "대시보드" },
+      input: { icon: "📝", label: "지출입력" },
+      child: { icon: "👶", label: "이시안" },
+      asset: { icon: "🏦", label: "자산현황" },
+      budget: { icon: "🎯", label: "예산관리" },
+      settings: { icon: "⚙️", label: "설정" }
+    };
 
     window.onload = function() {
       loadLocalStorage();
@@ -574,6 +585,7 @@
 
     function refreshAllUI() {
       applyThemeAndTitle();
+      renderNavBar();
       renderDropdowns();
       renderDashboard();
       renderChildTab();
@@ -611,6 +623,7 @@
       const theme = appData.theme || { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
       document.documentElement.style.setProperty('--bg-color', theme.bgColor);
       document.documentElement.style.setProperty('--text-color', theme.textColor);
+      document.documentElement.style.setProperty('--card-bg', theme.bgColor === '#FFFFFF' ? '#F1F5F9' : '#182232');
       document.documentElement.style.setProperty('--app-font', theme.font || "'Pretendard', sans-serif");
       
       document.getElementById('bg-color-picker').value = theme.bgColor;
@@ -620,6 +633,16 @@
       }
 
       document.getElementById('budget-warn-threshold').value = appData.budgetWarnThreshold || 80;
+    }
+
+    // 테마 프리셋 모드 선택 (어두운 테마 / 밝은 테마)
+    function setPresetTheme(mode) {
+      if (mode === 'dark') {
+        appData.theme = { bgColor: "#0F172A", textColor: "#F8FAFC", font: "'Pretendard', sans-serif" };
+      } else if (mode === 'light') {
+        appData.theme = { bgColor: "#FFFFFF", textColor: "#0F172A", font: "'Pretendard', sans-serif" };
+      }
+      saveDatabase();
     }
 
     function changeFontFamily(fontVal) {
@@ -658,6 +681,34 @@
       refreshAllUI();
     }
 
+    function renderNavBar() {
+      const order = (appData.config && appData.config.navOrder) ? appData.config.navOrder : ["dashboard", "input", "child", "asset", "budget", "settings"];
+      const navEl = document.getElementById('dynamic-nav-bar');
+      navEl.innerHTML = order.map(k => {
+        const meta = navMeta[k];
+        if (!meta) return '';
+        return `
+          <button onclick="switchTab('${k}')" id="nav-${k}" class="flex flex-col items-center space-y-0.5">
+            <span class="text-base">${meta.icon}</span>
+            <span>${meta.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function moveNavItem(idx, direction) {
+      const order = appData.config.navOrder;
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= order.length) return;
+
+      const temp = order[idx];
+      order[idx] = order[targetIdx];
+      order[targetIdx] = temp;
+
+      saveDatabase();
+      renderSettings();
+    }
+
     function getFilteredTransactions() {
       const txs = appData.transactions || [];
       if (currentPeriodFilter === 'all') return txs;
@@ -688,10 +739,12 @@
     function switchTab(tabName) {
       ['dashboard', 'input', 'child', 'asset', 'budget', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
-        document.getElementById(`nav-${t}`).classList.remove('active-tab');
+        const btn = document.getElementById(`nav-${t}`);
+        if (btn) btn.classList.remove('active-tab');
       });
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-      document.getElementById(`nav-${tabName}`).classList.add('active-tab');
+      const activeBtn = document.getElementById(`nav-${tabName}`);
+      if (activeBtn) activeBtn.classList.add('active-tab');
 
       if (tabName === 'child') renderChildTab();
       if (tabName === 'asset') renderAssetList();
@@ -746,7 +799,6 @@
       }
     }
 
-    // 👶 자녀용 독립 가계부 전용 함수들
     function addChildTransaction(e) {
       e.preventDefault();
       const tx = {
@@ -785,7 +837,7 @@
 
       const listEl = document.getElementById('child-transaction-list');
       if (childTxs.length === 0) {
-        listEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-2">등록된 자녀 내역이 없습니다.</div>';
+        listEl.innerHTML = '<div class="text-[10px] text-slate-500 text-center py-2">등록된 내역이 없습니다.</div>';
       } else {
         listEl.innerHTML = childTxs.map(t => `
           <div class="flex justify-between items-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
@@ -931,7 +983,6 @@
       alert(`이번 달 자동이체 지출 ${addedCount}건이 일괄 반영되었습니다!`);
     }
 
-    // 📅 날짜 한글 요어 생성 함수 (예: 04일 일요일)
     function getKoreanDateHeader(dateStr) {
       if (!dateStr) return "";
       const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
@@ -941,7 +992,99 @@
       return `<span class="font-extrabold text-sm text-white">${dayNum}</span> <span class="text-[10px] bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded ml-1">${dayName}</span> <span class="text-[9px] text-slate-500 ml-1">${dateStr.replace(/-/g, '.')}</span>`;
     }
 
-    // 스크린샷 완벽 구현: 일별 그룹화 피드 렌더링
+    // 📅 대시보드 뷰 모드 전환 (일별 피드 vs 달력)
+    function setDashboardViewMode(mode) {
+      dashViewMode = mode;
+      if (mode === 'list') {
+        document.getElementById('dash-view-list').classList.remove('hidden');
+        document.getElementById('dash-view-calendar').classList.add('hidden');
+        document.getElementById('view-mode-list-btn').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950";
+        document.getElementById('view-mode-cal-btn').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300";
+      } else {
+        document.getElementById('dash-view-list').classList.add('hidden');
+        document.getElementById('dash-view-calendar').classList.remove('hidden');
+        document.getElementById('view-mode-list-btn').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300";
+        document.getElementById('view-mode-cal-btn').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950";
+        renderCalendarView();
+      }
+    }
+
+    function changeCalMonth(delta) {
+      calMonth += delta;
+      if (calMonth > 12) { calMonth = 1; calYear++; }
+      if (calMonth < 1) { calMonth = 12; calYear--; }
+      renderCalendarView();
+    }
+
+    // 📆 달력 뷰 렌더링
+    function renderCalendarView() {
+      document.getElementById('cal-month-title').innerText = `${calYear}년 ${calMonth}월`;
+      const gridEl = document.getElementById('calendar-grid');
+      gridEl.innerHTML = '';
+
+      const firstDay = new Date(calYear, calMonth - 1, 1).getDay(); // 0(일) ~ 6(토)
+      const lastDate = new Date(calYear, calMonth, 0).getDate();
+
+      const txs = appData.transactions || [];
+
+      // 빈 칸 채우기
+      for (let i = 0; i < firstDay; i++) {
+        gridEl.innerHTML += `<div class="p-1 min-h-[50px] bg-slate-950/20 rounded"></div>`;
+      }
+
+      // 날짜 채우기
+      for (let day = 1; day <= lastDate; day++) {
+        const dayStr = `${calYear}-${String(calMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const dayTxs = txs.filter(t => t.date === dayStr);
+
+        const dayIncome = dayTxs.filter(t => t.type === '수입').reduce((s, t) => s + t.amount, 0);
+        const dayExpense = dayTxs.filter(t => t.type === '지출').reduce((s, t) => s + t.amount, 0);
+
+        gridEl.innerHTML += `
+          <div onclick="openDayDetailModal('${dayStr}')" class="p-1 min-h-[52px] bg-slate-900/80 hover:bg-slate-800 border border-slate-800/80 rounded cursor-pointer flex flex-col justify-between transition">
+            <div class="font-bold text-[10px] text-slate-300">${day}</div>
+            <div class="space-y-0.5 text-[8px] text-right">
+              ${dayIncome > 0 ? `<div class="text-emerald-400 font-bold">+${Math.round(dayIncome/1000)}k</div>` : ''}
+              ${dayExpense > 0 ? `<div class="text-rose-400 font-bold">-${Math.round(dayExpense/1000)}k</div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 달력 날짜 클릭 시 상세 내역 모달 팝업
+    function openDayDetailModal(dateStr) {
+      const dayTxs = (appData.transactions || []).filter(t => t.date === dateStr);
+      document.getElementById('day-detail-title').innerText = `${dateStr} 세부 내역 (${dayTxs.length}건)`;
+
+      const listEl = document.getElementById('day-detail-list');
+      if (dayTxs.length === 0) {
+        listEl.innerHTML = '<div class="text-slate-500 text-center py-4">이 날짜의 거래 내역이 없습니다.</div>';
+      } else {
+        listEl.innerHTML = dayTxs.map(t => `
+          <div class="flex justify-between items-center bg-slate-950/80 p-2 rounded-xl border border-slate-800">
+            <div>
+              <div class="font-bold text-slate-200">${t.item} <span class="text-[9px] opacity-60">(${(t.category||"").replace(/_/g, '/')})</span></div>
+              <div class="text-[9px] text-slate-400">${t.user} · ${t.payMethod}</div>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="font-bold ${t.type === '수입' ? 'text-emerald-400' : 'text-rose-400'}">
+                ${t.type === '수입' ? '+' : '-'}${t.amount.toLocaleString()}원
+              </span>
+              <button onclick="closeDayDetailModal(); openEditModal(${t.id});" class="text-[9px] bg-slate-800 text-slate-300 px-1 py-0.5 rounded border border-slate-700">수정</button>
+              <button onclick="closeDayDetailModal(); deleteTransaction(${t.id});" class="text-[9px] bg-rose-950 text-rose-400 px-1 py-0.5 rounded border border-rose-900">삭제</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('day-detail-modal').classList.remove('hidden');
+    }
+
+    function closeDayDetailModal() {
+      document.getElementById('day-detail-modal').classList.add('hidden');
+    }
+
     function renderDashboard() {
       const assets = appData.assets || [];
       const filteredTxs = getFilteredTransactions();
@@ -976,7 +1119,6 @@
       if (pageTxs.length === 0) {
         listEl.innerHTML = '<div class="text-[11px] opacity-50 text-center py-3">해당 기간의 거래 내역이 없습니다.</div>';
       } else {
-        // 날짜별 그룹화 (Group By Date)
         const grouped = {};
         pageTxs.forEach(t => {
           if (!grouped[t.date]) grouped[t.date] = [];
@@ -991,7 +1133,6 @@
 
           html += `
             <div class="space-y-1.5 pt-1">
-              <!-- 날짜 헤더 & 일별 수입/지출 합계 -->
               <div class="flex justify-between items-center bg-slate-900/90 px-3 py-1.5 rounded-lg border-l-2 border-l-amber-400">
                 <div class="flex items-center">
                   ${getKoreanDateHeader(dateKey)}
@@ -1002,7 +1143,6 @@
                 </div>
               </div>
 
-              <!-- 일별 항목 피드 내역 -->
               <div class="space-y-1.5 pl-1">
                 ${dayItems.map(t => `
                   <div class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
@@ -1025,6 +1165,8 @@
         }
         listEl.innerHTML = html;
       }
+
+      if (dashViewMode === 'calendar') renderCalendarView();
     }
 
     function prevTxPage() {
@@ -1201,6 +1343,21 @@
       const users = (appData.config && appData.config.users) ? appData.config.users : [];
       const pays = (appData.config && appData.config.payMethods) ? appData.config.payMethods : [];
       const recurrings = appData.recurring || [];
+      const navOrder = (appData.config && appData.config.navOrder) ? appData.config.navOrder : ["dashboard", "input", "child", "asset", "budget", "settings"];
+
+      // 📌 네비게이션 순서 조정 목록
+      document.getElementById('nav-order-list').innerHTML = navOrder.map((k, idx) => {
+        const meta = navMeta[k];
+        return `
+          <div class="flex justify-between items-center bg-slate-950 p-2 rounded-xl border border-slate-800">
+            <span class="font-bold text-slate-200">${meta.icon} ${meta.label}</span>
+            <div class="flex space-x-1">
+              <button type="button" onclick="moveNavItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▲ 위로</button>
+              <button type="button" onclick="moveNavItem(${idx}, 1)" ${idx === navOrder.length - 1 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▼ 아래로</button>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       // 카테고리 태그
       document.getElementById('setting-cat-tags').innerHTML = cats.map((c, i) => `
