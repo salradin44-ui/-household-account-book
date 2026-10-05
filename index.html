@@ -149,7 +149,7 @@
         </div>
       </div>
 
-      <!-- 📅 메인을 달력 뷰로 고정 설정 -->
+      <!-- 📅 메인 달력 뷰 -->
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <div class="flex space-x-2">
@@ -159,7 +159,6 @@
           <span class="text-[10px] opacity-70" id="tx-page-info">1 / 1 페이지</span>
         </div>
 
-        <!-- 1) 달력 뷰 (Calendar View) -->
         <div id="dash-view-calendar" class="space-y-3">
           <div class="flex justify-between items-center text-xs">
             <button onclick="changeCalMonth(-1)" class="px-2 py-1 bg-slate-800 text-slate-200 rounded border border-slate-700">◀ 이전달</button>
@@ -174,7 +173,6 @@
           <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-[9px]"></div>
         </div>
         
-        <!-- 2) 피드 리스트 뷰 -->
         <div id="dash-view-list" class="hidden space-y-3 text-xs">
           <div id="recent-expense-list" class="space-y-3"></div>
           <div class="flex justify-between items-center pt-2 text-xs border-t border-slate-800">
@@ -285,28 +283,50 @@
       </div>
     </section>
 
-    <!-- 4. 자산현황 탭 -->
+    <!-- 4. 자산현황 탭 (최초투자금, 현재 평가액, 투자날짜, 수익률 기능 확장!) -->
     <section id="tab-asset" class="hidden space-y-3">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
-          <span>🏦</span> 자산 보유 현황
+          <span>🏦</span> 자산 보유 현황 및 수익률
         </h2>
+
         <form onsubmit="addAsset(event)" class="space-y-2 card-glass p-3 rounded-xl border">
           <div class="grid grid-cols-2 gap-2">
-            <select id="asset-type" class="p-2 border rounded-lg text-xs">
-              <option value="예금">예금 (현금성)</option>
-              <option value="적금">적금 (목돈)</option>
-              <option value="주식">주식 (투자)</option>
-              <option value="기타_부동산">기타/부동산</option>
-            </select>
-            <input type="text" id="asset-name" placeholder="자산명 (예: 청약)" required class="p-2 border rounded-lg text-xs">
+            <div>
+              <label class="text-[10px] opacity-70">자산 유형</label>
+              <select id="asset-type" class="w-full p-2 border rounded-lg text-xs">
+                <option value="예금">예금 (현금성)</option>
+                <option value="적금">적금 (목돈)</option>
+                <option value="주식">주식 (투자)</option>
+                <option value="기타_부동산">기타/부동산</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] opacity-70">자산명</label>
+              <input type="text" id="asset-name" placeholder="예: DB보험, 미국주식" required class="w-full p-2 border rounded-lg text-xs">
+            </div>
           </div>
+
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="asset-amount" placeholder="평가액/잔액" required class="p-2 border rounded-lg text-xs">
-            <button type="submit" class="bg-teal-500 text-slate-950 font-bold rounded-lg text-xs">자산 추가</button>
+            <div>
+              <label class="text-[10px] opacity-70">최초 투자금(원)</label>
+              <input type="number" id="asset-init-amount" placeholder="0" required class="w-full p-2 border rounded-lg text-xs">
+            </div>
+            <div>
+              <label class="text-[10px] opacity-70">현재 평가액(원)</label>
+              <input type="number" id="asset-amount" placeholder="0" required class="w-full p-2 border rounded-lg text-xs font-bold text-emerald-400">
+            </div>
           </div>
+
+          <div>
+            <label class="text-[10px] opacity-70">최초 투자/매수 날짜</label>
+            <input type="date" id="asset-date" class="w-full p-2 border rounded-lg text-xs">
+          </div>
+
+          <button type="submit" class="w-full py-2 bg-teal-500 text-slate-950 font-bold rounded-lg text-xs">자산 추가 등록</button>
         </form>
-        <div id="asset-list" class="space-y-2 text-xs"></div>
+
+        <div id="asset-list" class="space-y-2.5 text-xs"></div>
       </div>
     </section>
 
@@ -331,7 +351,6 @@
         <span>⚙️</span> 가계부 설정 & 테마
       </h2>
 
-      <!-- 가계부 이름 변경 -->
       <div class="space-y-1.5">
         <label class="text-xs font-bold opacity-80">가계부 이름 변경</label>
         <div class="flex gap-2">
@@ -340,7 +359,6 @@
         </div>
       </div>
 
-      <!-- 🎨 테마 모드 & 색상 커스텀 설정 -->
       <div class="space-y-3 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">🎨 앱 테마 및 색상 설정</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -364,13 +382,11 @@
         </div>
       </div>
 
-      <!-- 📌 하단 네비게이션 탭 순서 설정 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">📌 하단 네비게이션 탭 순서 조정</h3>
         <div id="nav-order-list" class="space-y-1.5 text-xs"></div>
       </div>
 
-      <!-- 👶 이시안 전용 카테고리 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold text-sky-400">👶 이시안 전용 카테고리 관리</h3>
         <div class="flex gap-2">
@@ -380,7 +396,6 @@
         <div id="setting-child-cat-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 👤 사용자 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">👤 사용자 (구성원) 관리</h3>
         <div class="flex gap-2">
@@ -390,7 +405,6 @@
         <div id="setting-user-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 💳 결제 수단 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">💳 결제 수단 관리</h3>
         <div class="flex gap-2">
@@ -400,7 +414,6 @@
         <div id="setting-pay-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 🏷️️ 카테고리 관리 -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">🏷️ 메인 카테고리 항목 관리</h3>
         <div class="flex gap-2">
@@ -410,7 +423,6 @@
         <div id="setting-cat-tags" class="flex flex-wrap gap-1"></div>
       </div>
 
-      <!-- 🔄 월별 고정지출/자동이체 -->
       <div class="space-y-3 border-t border-slate-800 pt-3">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-bold text-amber-400">🔄 월별 고정지출 / 자동이체 관리</h3>
@@ -430,7 +442,6 @@
         <div id="recurring-list" class="space-y-2 text-xs"></div>
       </div>
 
-      <!-- 📂 데이터 백업 및 복원 기능 추가! -->
       <div class="space-y-2 border-t border-slate-800 pt-3">
         <h3 class="text-xs font-bold opacity-80">데이터 백업, 복원 및 초기화</h3>
         <div class="grid grid-cols-2 gap-2">
@@ -491,6 +502,47 @@
     </div>
   </div>
 
+  <!-- 🏦 자산 수정 모달 팝업 추가! -->
+  <div id="edit-asset-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3">
+      <h3 class="text-base font-bold text-teal-400">🏦 자산 보유 현황 수정</h3>
+      <input type="hidden" id="edit-asset-idx">
+      
+      <div>
+        <label class="text-[11px] opacity-70">자산 유형</label>
+        <select id="edit-asset-type" class="w-full mt-1 p-2 border rounded-xl text-xs">
+          <option value="예금">예금 (현금성)</option>
+          <option value="적금">적금 (목돈)</option>
+          <option value="주식">주식 (투자)</option>
+          <option value="기타_부동산">기타/부동산</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-[11px] opacity-70">자산명</label>
+        <input type="text" id="edit-asset-name" class="w-full mt-1 p-2 border rounded-xl text-xs">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[11px] opacity-70">최초 투자금(원)</label>
+          <input type="number" id="edit-asset-init-amount" class="w-full mt-1 p-2 border rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="text-[11px] opacity-70">현재 평가액(원)</label>
+          <input type="number" id="edit-asset-amount" class="w-full mt-1 p-2 border rounded-xl text-xs font-bold text-emerald-400">
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] opacity-70">최초 투자/매수 날짜</label>
+        <input type="date" id="edit-asset-date" class="w-full mt-1 p-2 border rounded-xl text-xs">
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeEditAssetModal()" class="flex-1 py-2 bg-slate-800 text-xs rounded-xl">취소</button>
+        <button type="button" onclick="saveEditAsset()" class="flex-1 py-2 bg-teal-500 text-slate-950 font-bold text-xs rounded-xl">수정 완료</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 달력 상세 팝업 -->
   <div id="day-detail-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3 max-h-[80vh] overflow-y-auto">
@@ -543,10 +595,18 @@
         childTransactions: [],
         recurring: [],
         assets: [
-          { type: '예금', name: '보통예금(주거래)', amount: 5000000 },
-          { type: '적금', name: '청약저축', amount: 6000000 },
-          { type: '주식', name: '삼성전자', amount: 8000000 },
-          { type: '기타_부동산', name: '전세보증금', amount: 180500000 }
+          { type: '기타_부동산', name: '전세보증금(재호)', initAmount: 20720000, amount: 20720000, date: '' },
+          { type: '기타_부동산', name: '전세보증금(중은)', initAmount: 13200000, amount: 13200000, date: '' },
+          { type: '적금', name: '투자금(중은)', initAmount: 79000000, amount: 79000000, date: '' },
+          { type: '예금', name: '주택청약(중은)', initAmount: 5500000, amount: 5500000, date: '' },
+          { type: '적금', name: '도약계좌(중은)', initAmount: 2100000, amount: 2100000, date: '' },
+          { type: '주식', name: 'DB손해보험(재호)', initAmount: 38365040, amount: 38365040, date: '' },
+          { type: '주식', name: '퇴직연금(재호)', initAmount: 12935243, amount: 12935243, date: '' },
+          { type: '주식', name: '비상장주식(재호)', initAmount: 22400000, amount: 22400000, date: '' },
+          { type: '적금', name: '주택청약(재호)', initAmount: 3780000, amount: 3780000, date: '' },
+          { type: '주식', name: '미국주식(중은)', initAmount: 14200525, amount: 14200525, date: '' },
+          { type: '주식', name: '비상금(공동)', initAmount: 5400000, amount: 5400000, date: '' },
+          { type: '예금', name: '시안이 수당(육아수당)', initAmount: 3300000, amount: 3300000, date: '' }
         ],
         config: {
           categories: ["식비", "주거_공과금", "교통_차량", "육아_교육", "생활_생필품", "통신비", "보험_의료", "쇼핑_패션", "여가_문화", "경조사", "기타"],
@@ -565,7 +625,13 @@
 
       if (!clean.assets || clean.assets.length === 0) {
         clean.assets = getInitialDefaultData().assets;
+      } else {
+        clean.assets.forEach(a => {
+          if (a.initAmount === undefined) a.initAmount = a.amount || 0;
+          if (!a.date) a.date = '';
+        });
       }
+
       if (!clean.config) {
         clean.config = getInitialDefaultData().config;
       } else {
@@ -634,6 +700,9 @@
       document.getElementById('in-date').value = todayStr;
       if (document.getElementById('child-in-date')) {
         document.getElementById('child-in-date').value = todayStr;
+      }
+      if (document.getElementById('asset-date')) {
+        document.getElementById('asset-date').value = todayStr;
       }
 
       refreshAllUI();
@@ -1341,38 +1410,112 @@
       };
     }
 
+    // 🏦 자산 보유 현황 렌더링 (최초투자금, 수익률%, 날짜, 수정버튼 포함)
     function renderAssetList() {
       const assets = appData.assets || [];
-      document.getElementById('asset-list').innerHTML = assets.map((a, idx) => `
-        <div class="flex justify-between items-center card-glass p-2 rounded-xl border">
-          <div>
-            <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${(a.type||"").replace(/_/g, '/')}</span>
-            <span class="font-bold ml-1">${a.name}</span>
+      document.getElementById('asset-list').innerHTML = assets.map((a, idx) => {
+        const initAmt = parseInt(a.initAmount) || parseInt(a.amount) || 0;
+        const currAmt = parseInt(a.amount) || 0;
+        const diff = currAmt - initAmt;
+        const roi = initAmt > 0 ? ((diff / initAmt) * 100).toFixed(1) : "0.0";
+
+        const isProfit = diff > 0;
+        const isLoss = diff < 0;
+        const roiColor = isProfit ? 'text-emerald-400 font-bold' : (isLoss ? 'text-rose-400 font-bold' : 'opacity-60');
+
+        return `
+          <div class="card-glass p-2.5 rounded-xl border flex flex-col space-y-1">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${(a.type||"").replace(/_/g, '/')}</span>
+                <span class="font-bold ml-1 text-xs">${a.name}</span>
+              </div>
+              <div class="flex items-center space-x-1.5">
+                <button type="button" onclick="openEditAssetModal(${idx})" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">수정</button>
+                <button type="button" onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-end pt-1 border-t border-slate-800/60 text-[11px]">
+              <div class="text-[10px] opacity-60">
+                ${a.date ? '투자일: ' + a.date : ''}
+                <div>원금: ${initAmt.toLocaleString()}원</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs font-extrabold text-emerald-400">${currAmt.toLocaleString()}원</div>
+                <div class="text-[10px] ${roiColor}">
+                  ${isProfit ? '+' : ''}${diff.toLocaleString()}원 (${isProfit ? '+' : ''}${roi}%)
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-emerald-400">${parseInt(a.amount||0).toLocaleString()}원</span>
-            <button type="button" onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function addAsset(e) {
       e.preventDefault();
       if (!appData.assets) appData.assets = [];
+
+      const initAmt = parseInt(document.getElementById('asset-init-amount').value) || 0;
+      const currAmt = parseInt(document.getElementById('asset-amount').value) || 0;
+
       appData.assets.push({
         type: sanitizeKey(document.getElementById('asset-type').value),
         name: document.getElementById('asset-name').value,
-        amount: parseInt(document.getElementById('asset-amount').value) || 0
+        initAmount: initAmt,
+        amount: currAmt,
+        date: document.getElementById('asset-date').value || ''
       });
+
       saveDatabase();
       renderAssetList();
+
+      document.getElementById('asset-name').value = '';
+      document.getElementById('asset-init-amount').value = '';
+      document.getElementById('asset-amount').value = '';
+    }
+
+    function openEditAssetModal(idx) {
+      const a = (appData.assets || [])[idx];
+      if (!a) return;
+
+      document.getElementById('edit-asset-idx').value = idx;
+      document.getElementById('edit-asset-type').value = a.type;
+      document.getElementById('edit-asset-name').value = a.name;
+      document.getElementById('edit-asset-init-amount').value = a.initAmount !== undefined ? a.initAmount : a.amount;
+      document.getElementById('edit-asset-amount').value = a.amount;
+      document.getElementById('edit-asset-date').value = a.date || '';
+
+      document.getElementById('edit-asset-modal').classList.remove('hidden');
+    }
+
+    function closeEditAssetModal() {
+      document.getElementById('edit-asset-modal').classList.add('hidden');
+    }
+
+    function saveEditAsset() {
+      const idx = parseInt(document.getElementById('edit-asset-idx').value);
+      if (appData.assets && appData.assets[idx]) {
+        appData.assets[idx] = {
+          type: sanitizeKey(document.getElementById('edit-asset-type').value),
+          name: document.getElementById('edit-asset-name').value,
+          initAmount: parseInt(document.getElementById('edit-asset-init-amount').value) || 0,
+          amount: parseInt(document.getElementById('edit-asset-amount').value) || 0,
+          date: document.getElementById('edit-asset-date').value || ''
+        };
+        closeEditAssetModal();
+        saveDatabase();
+        renderAssetList();
+      }
     }
 
     function removeAsset(idx) {
-      appData.assets.splice(idx, 1);
-      saveDatabase();
-      renderAssetList();
+      if (confirm("이 자산 항목을 삭제하시겠습니까?")) {
+        appData.assets.splice(idx, 1);
+        saveDatabase();
+        renderAssetList();
+      }
     }
 
     function renderBudgetProgress() {
@@ -1431,7 +1574,7 @@
       document.getElementById('nav-order-list').innerHTML = navOrder.map((k, idx) => {
         const meta = navMeta[k];
         return `
-          <div class="flex justify-between items-center card-glass p-2 rounded-xl border">
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800">
             <span class="font-bold">${meta.icon} ${meta.label}</span>
             <div class="flex space-x-1">
               <button type="button" onclick="moveNavItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700 disabled:opacity-30">▲ 위로</button>
@@ -1470,7 +1613,7 @@
         recListEl.innerHTML = '<div class="text-[10px] opacity-50 text-center py-1">등록된 고정 지출이 없습니다.</div>';
       } else {
         recListEl.innerHTML = recurrings.map(r => `
-          <div class="flex justify-between items-center card-glass p-2 rounded-xl border text-xs">
+          <div class="flex justify-between items-center card-glass p-2 rounded-xl border border-slate-800 text-xs">
             <div>
               <span class="font-bold text-amber-400">매월 ${r.day}일</span>
               <span class="ml-1.5">${r.item}</span>
