@@ -149,7 +149,7 @@
         </div>
       </div>
 
-      <!-- 📅 메인 달력 뷰 -->
+      <!-- 📅 달력 뷰 / 피드 뷰 -->
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <div class="flex space-x-2">
@@ -283,11 +283,11 @@
       </div>
     </section>
 
-    <!-- 4. 자산현황 탭 (최초투자금, 현재 평가액, 투자날짜, 수익률 기능 확장!) -->
+    <!-- 4. 자산현황 탭 -->
     <section id="tab-asset" class="hidden space-y-3">
       <div class="card-glass p-4 rounded-2xl space-y-3">
         <h2 class="text-base font-bold text-teal-400 flex items-center gap-2">
-          <span>🏦</span> 자산 보유 현황 및 수익률
+          <span>🏦</span> 자산 보유 현황 및 지출 연동
         </h2>
 
         <form onsubmit="addAsset(event)" class="space-y-2 card-glass p-3 rounded-xl border">
@@ -348,7 +348,7 @@
     <!-- 6. 설정 탭 -->
     <section id="tab-settings" class="hidden card-glass p-4 rounded-2xl space-y-4">
       <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2">
-        <span>⚙️</span> 가계부 설정 & 테마
+        <span>⚙️️</span> 가계부 설정 & 테마
       </h2>
 
       <div class="space-y-1.5">
@@ -502,7 +502,49 @@
     </div>
   </div>
 
-  <!-- 🏦 자산 수정 모달 팝업 추가! -->
+  <!-- 💸 자산 인출/지출 모달 팝업 추가! -->
+  <div id="spend-asset-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3">
+      <h3 class="text-base font-bold text-rose-400">💸 자산 매도 및 지출 처리</h3>
+      <input type="hidden" id="spend-asset-idx">
+      
+      <div>
+        <label class="text-[11px] opacity-70">차감할 자산</label>
+        <input type="text" id="spend-asset-name-display" readonly class="w-full mt-1 p-2 border rounded-xl text-xs font-bold opacity-80">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[11px] opacity-70">지출 날짜</label>
+          <input type="date" id="spend-asset-date" class="w-full mt-1 p-2 border rounded-xl text-xs">
+        </div>
+        <div>
+          <label class="text-[11px] opacity-70">지출/매도 금액(원)</label>
+          <input type="number" id="spend-asset-amount" placeholder="0" required class="w-full mt-1 p-2 border rounded-xl text-xs font-bold text-rose-400">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[11px] opacity-70">카테고리</label>
+          <select id="spend-asset-category" class="w-full mt-1 p-2 border rounded-xl text-xs"></select>
+        </div>
+        <div>
+          <label class="text-[11px] opacity-70">사용자</label>
+          <select id="spend-asset-user" class="w-full mt-1 p-2 border rounded-xl text-xs"></select>
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] opacity-70">지출 내역/사유</label>
+        <input type="text" id="spend-asset-item" placeholder="예: 주식 매도 후 생활비 인출" required class="w-full mt-1 p-2 border rounded-xl text-xs">
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeSpendAssetModal()" class="flex-1 py-2 bg-slate-800 text-xs rounded-xl">취소</button>
+        <button type="button" onclick="confirmSpendAsset()" class="flex-1 py-2 bg-rose-500 text-white font-bold text-xs rounded-xl">지출 및 차감하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🏦 자산 수정 모달 팝업 -->
   <div id="edit-asset-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card-glass p-5 rounded-2xl w-full max-w-sm space-y-3">
       <h3 class="text-base font-bold text-teal-400">🏦 자산 보유 현황 수정</h3>
@@ -916,6 +958,13 @@
       document.getElementById('edit-user').innerHTML = usersHtml;
       document.getElementById('edit-category').innerHTML = catsHtml;
       document.getElementById('edit-paymethod').innerHTML = paysHtml;
+
+      if (document.getElementById('spend-asset-user')) {
+        document.getElementById('spend-asset-user').innerHTML = usersHtml;
+      }
+      if (document.getElementById('spend-asset-category')) {
+        document.getElementById('spend-asset-category').innerHTML = catsHtml;
+      }
 
       if (document.getElementById('child-in-category')) {
         document.getElementById('child-in-category').innerHTML = childCatsHtml;
@@ -1410,7 +1459,6 @@
       };
     }
 
-    // 🏦 자산 보유 현황 렌더링 (최초투자금, 수익률%, 날짜, 수정버튼 포함)
     function renderAssetList() {
       const assets = appData.assets || [];
       document.getElementById('asset-list').innerHTML = assets.map((a, idx) => {
@@ -1430,9 +1478,10 @@
                 <span class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-300">${(a.type||"").replace(/_/g, '/')}</span>
                 <span class="font-bold ml-1 text-xs">${a.name}</span>
               </div>
-              <div class="flex items-center space-x-1.5">
+              <div class="flex items-center space-x-1">
+                <button type="button" onclick="openSpendAssetModal(${idx})" class="text-[9px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded border border-rose-900 font-bold">💸 지출</button>
                 <button type="button" onclick="openEditAssetModal(${idx})" class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">수정</button>
-                <button type="button" onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold">✕</button>
+                <button type="button" onclick="removeAsset(${idx})" class="text-xs text-rose-500 font-bold ml-0.5">✕</button>
               </div>
             </div>
 
@@ -1474,6 +1523,63 @@
       document.getElementById('asset-name').value = '';
       document.getElementById('asset-init-amount').value = '';
       document.getElementById('asset-amount').value = '';
+    }
+
+    // 💸 자산 지출/차감 및 대시보드 지출 내역 자동 등록 연동 함수
+    function openSpendAssetModal(idx) {
+      const a = (appData.assets || [])[idx];
+      if (!a) return;
+
+      document.getElementById('spend-asset-idx').value = idx;
+      document.getElementById('spend-asset-name-display').value = `[${a.type.replace(/_/g, '/')}] ${a.name} (잔액: ${a.amount.toLocaleString()}원)`;
+      document.getElementById('spend-asset-date').value = new Date().toISOString().substring(0, 10);
+      document.getElementById('spend-asset-amount').value = '';
+      document.getElementById('spend-asset-item').value = `${a.name} 매도/지출`;
+
+      document.getElementById('spend-asset-modal').classList.remove('hidden');
+    }
+
+    function closeSpendAssetModal() {
+      document.getElementById('spend-asset-modal').classList.add('hidden');
+    }
+
+    function confirmSpendAsset() {
+      const idx = parseInt(document.getElementById('spend-asset-idx').value);
+      const spendAmt = parseInt(document.getElementById('spend-asset-amount').value) || 0;
+      const spendDate = document.getElementById('spend-asset-date').value;
+      const spendCat = sanitizeKey(document.getElementById('spend-asset-category').value);
+      const spendUser = document.getElementById('spend-asset-user').value;
+      const spendItem = document.getElementById('spend-asset-item').value.trim() || "자산 차감 지출";
+
+      if (spendAmt <= 0) {
+        alert("지출할 금액을 0원보다 크게 입력해 주세요.");
+        return;
+      }
+
+      const a = appData.assets[idx];
+      if (a) {
+        // 1) 자산 잔액 차감
+        a.amount = Math.max(0, a.amount - spendAmt);
+
+        // 2) 대시보드 지출 거래 내역에 자동 등록 (연동)
+        const tx = {
+          id: Date.now(),
+          date: spendDate,
+          type: "지출",
+          user: spendUser,
+          category: spendCat,
+          payMethod: "자산인출",
+          item: `[${a.name}] ${spendItem}`,
+          amount: spendAmt
+        };
+
+        if (!appData.transactions) appData.transactions = [];
+        appData.transactions.unshift(tx);
+
+        closeSpendAssetModal();
+        saveDatabase();
+        alert(`${a.name} 자산에서 ${spendAmt.toLocaleString()}원이 차감되고 지출 내역으로 연동되어 자동 반영되었습니다!`);
+      }
     }
 
     function openEditAssetModal(idx) {
